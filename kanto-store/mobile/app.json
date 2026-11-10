@@ -1,0 +1,2 @@
+{ "expo": { "name": "Kanto Store", "slug": "kanto-store", "version": "1.0.0", "orientation": "portrait", "userInterfaceStyle": "light",
+  "android": { "usesCleartextTraffic": true }, "platforms": ["ios", "android"] } }
