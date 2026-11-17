@@ -3,7 +3,8 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 const { auth, rol } = require('../middleware/auth');
-const { wrap, RAREZAS, IDIOMAS, ESTADOS_CARTA } = require('../utils/helpers');
+const { wrap, fail, RAREZAS, IDIOMAS, ESTADOS_CARTA, ROLES } = require('../utils/helpers');
+const { registrarMovimiento } = require('../utils/pedidos');
 const { notificarDisponibilidad } = require('../utils/notify');
 
 router.use(auth);
@@ -37,6 +38,7 @@ router.post('/productos', rol('admin', 'stock'), wrap(async (req, res) => {
   try {
     const [r] = await db.query(`INSERT INTO productos (${cols.join(',')}) VALUES (${cols.map(() => '?').join(',')})`,
       cols.map((c) => req.body[c]));
+    await registrarMovimiento(db, { producto_id: r.insertId, tipo: 'inicial', cantidad: Number(req.body.stock || 0), stock: Number(req.body.stock || 0), usuario_id: req.user.id, nota: 'Producto creado' });
     res.status(201).json({ id: r.insertId });
   } catch (e) {
     if (e.code === 'ER_DUP_ENTRY') return res.status(409).json({ error: 'El SKU ya existe' });
@@ -56,6 +58,9 @@ router.put('/productos/:id', rol('admin', 'stock'), wrap(async (req, res) => {
     if (!antes) { await conn.rollback(); return res.status(404).json({ error: 'No existe' }); }
     await conn.query(`UPDATE productos SET ${cols.map((c) => `${c} = ?`).join(', ')} WHERE id = ?`,
       [...cols.map((c) => (req.body[c] === '' ? null : req.body[c])), req.params.id]);
+    if (req.body.stock !== undefined && Number(req.body.stock) !== antes.stock) {
+      await registrarMovimiento(conn, { producto_id: Number(req.params.id), tipo: 'ajuste', cantidad: Number(req.body.stock) - antes.stock, stock: Number(req.body.stock), usuario_id: req.user.id, nota: 'Edición del producto' });
+    }
     if (antes.stock === 0 && Number(req.body.stock) > 0) await notificarDisponibilidad(conn, req.params.id);
     await conn.commit();
     res.json({ ok: true });
@@ -78,22 +83,43 @@ router.delete('/productos/:id', rol('admin'), wrap(async (req, res) => {
 }));
 
 // ---------- Inventario ----------
+// Ajuste de stock con motivo: acepta `delta` (+/-) o `cantidad` (valor final). Todo queda en el kardex.
 router.patch('/productos/:id/stock', rol('admin', 'stock'), wrap(async (req, res) => {
-  const { cantidad, estado_conservacion } = req.body; // cantidad = nuevo stock absoluto
-  if (!(Number(cantidad) >= 0)) return res.status(400).json({ error: 'Cantidad inválida' });
-  if (estado_conservacion && !ESTADOS_CARTA.includes(estado_conservacion)) return res.status(400).json({ error: 'Estado inválido' });
+  const { cantidad, delta, motivo, estado_conservacion } = req.body;
+  if (estado_conservacion && !ESTADOS_CARTA.includes(estado_conservacion)) fail(400, 'Estado inválido');
+  if (delta === undefined && !(Number(cantidad) >= 0)) fail(400, 'Cantidad inválida');
+  if (delta !== undefined && !Number.isInteger(Number(delta))) fail(400, 'El ajuste debe ser un número entero');
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
     const [[antes]] = await conn.query('SELECT stock FROM productos WHERE id = ? FOR UPDATE', [req.params.id]);
-    if (!antes) { await conn.rollback(); return res.status(404).json({ error: 'No existe' }); }
+    if (!antes) fail(404, 'No existe');
+    const nuevo = delta !== undefined ? antes.stock + Number(delta) : Number(cantidad);
+    if (nuevo < 0) fail(400, `No puedes dejar el stock en negativo (actual: ${antes.stock})`);
+    const dif = nuevo - antes.stock;
+    if (dif !== 0 && !String(motivo || '').trim()) fail(400, 'Indica el motivo del ajuste de stock');
     await conn.query('UPDATE productos SET stock = ?, estado_conservacion = COALESCE(?, estado_conservacion) WHERE id = ?',
-      [Number(cantidad), estado_conservacion || null, req.params.id]);
+      [nuevo, estado_conservacion || null, req.params.id]);
+    if (dif !== 0) {
+      const tipo = ['entrada', 'salida', 'ajuste'].includes(req.body.tipo) ? req.body.tipo : (dif > 0 ? 'entrada' : 'salida');
+      await registrarMovimiento(conn, { producto_id: Number(req.params.id), tipo, cantidad: dif, stock: nuevo, usuario_id: req.user.id, nota: String(motivo).slice(0, 250) });
+    }
     let avisos = 0;
-    if (antes.stock === 0 && Number(cantidad) > 0) avisos = await notificarDisponibilidad(conn, req.params.id);
+    if (antes.stock === 0 && nuevo > 0) avisos = await notificarDisponibilidad(conn, req.params.id);
     await conn.commit();
-    res.json({ ok: true, avisos });
+    res.json({ ok: true, stock: nuevo, avisos });
   } catch (e) { await conn.rollback(); throw e; } finally { conn.release(); }
+}));
+
+// Kardex de un producto (o los últimos movimientos de todo el inventario)
+router.get('/inventario/movimientos', rol('admin', 'stock'), wrap(async (req, res) => {
+  const limit = Math.min(200, parseInt(req.query.limit) || 50);
+  const [rows] = await db.query(
+    `SELECT m.id, m.producto_id, p.nombre AS producto, p.sku, m.tipo, m.cantidad, m.stock_resultante, m.nota, m.pedido_id, m.creado_en, u.nombre AS usuario
+     FROM movimientos_stock m JOIN productos p ON p.id = m.producto_id LEFT JOIN usuarios u ON u.id = m.usuario_id
+     ${req.query.producto_id ? 'WHERE m.producto_id = ?' : ''} ORDER BY m.id DESC LIMIT ?`,
+    req.query.producto_id ? [req.query.producto_id, limit] : [limit]);
+  res.json(rows);
 }));
 
 router.get('/inventario/alertas', rol('admin', 'stock'), wrap(async (_req, res) => {
@@ -119,7 +145,7 @@ router.get('/usuarios', rol('admin'), wrap(async (_req, res) => {
 
 router.post('/usuarios', rol('admin'), wrap(async (req, res) => {
   const { nombre, email, password, rol: r, telefono } = req.body;
-  if (!nombre || !email || !password || !['cliente', 'admin', 'stock', 'repartidor'].includes(r)) {
+  if (!nombre || !email || !password || !ROLES.includes(r)) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
   try {
@@ -135,7 +161,7 @@ router.post('/usuarios', rol('admin'), wrap(async (req, res) => {
 router.patch('/usuarios/:id', rol('admin'), wrap(async (req, res) => {
   const { rol: r, activo } = req.body;
   if (Number(req.params.id) === req.user.id) return res.status(400).json({ error: 'No puedes modificar tu propia cuenta' });
-  if (r !== undefined && !['cliente', 'admin', 'stock', 'repartidor'].includes(r)) return res.status(400).json({ error: 'Rol inválido' });
+  if (r !== undefined && !ROLES.includes(r)) return res.status(400).json({ error: 'Rol inválido' });
   await db.query('UPDATE usuarios SET rol = COALESCE(?, rol), activo = COALESCE(?, activo) WHERE id = ?',
     [r ?? null, activo === undefined ? null : (activo ? 1 : 0), req.params.id]);
   res.json({ ok: true });
@@ -144,18 +170,19 @@ router.patch('/usuarios/:id', rol('admin'), wrap(async (req, res) => {
 // ---------- Reportes ----------
 router.get('/reportes', rol('admin'), wrap(async (_req, res) => {
   const [[resumen]] = await db.query(
-    `SELECT COUNT(*) pedidos, COALESCE(SUM(total),0) ingresos FROM pedidos WHERE estado NOT IN ('cancelado','pendiente')`);
+    `SELECT COUNT(*) pedidos, COALESCE(SUM(total),0) ingresos FROM pedidos WHERE estado IN ('pagado','preparando','empacado','en_transito','entregado')`);
   const [porEstado] = await db.query('SELECT estado, COUNT(*) cantidad FROM pedidos GROUP BY estado');
   const [top] = await db.query(
     `SELECT i.nombre, SUM(i.cantidad) vendidos, SUM(i.cantidad*i.precio_unitario) monto
      FROM pedido_items i JOIN pedidos p ON p.id = i.pedido_id WHERE p.estado <> 'cancelado'
      GROUP BY i.nombre ORDER BY vendidos DESC LIMIT 5`);
   const [ventasDia] = await db.query(
-    `SELECT DATE(creado_en) dia, SUM(total) total FROM pedidos WHERE estado NOT IN ('cancelado','pendiente')
+    `SELECT DATE(creado_en) dia, SUM(total) total FROM pedidos WHERE estado IN ('pagado','preparando','empacado','en_transito','entregado')
      AND creado_en >= DATE_SUB(CURDATE(), INTERVAL 14 DAY) GROUP BY DATE(creado_en) ORDER BY dia`);
   const [[{ bajoStock }]] = await db.query('SELECT COUNT(*) bajoStock FROM productos WHERE activo = 1 AND stock <= stock_minimo');
+  const [[{ porVerificar }]] = await db.query("SELECT COUNT(*) porVerificar FROM pedidos WHERE estado = 'por_verificar'");
   const [[{ clientes }]] = await db.query("SELECT COUNT(*) clientes FROM usuarios WHERE rol = 'cliente'");
-  res.json({ ...resumen, porEstado, top, ventasDia, bajoStock, clientes });
+  res.json({ ...resumen, porEstado, top, ventasDia, bajoStock, clientes, porVerificar });
 }));
 
 module.exports = router;

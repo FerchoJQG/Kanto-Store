@@ -36,6 +36,14 @@ router.get('/productos/:id', wrap(async (req, res) => {
   res.json(p);
 }));
 
+// Revalida el carrito con el stock y precios actuales
+router.post('/carrito/validar', wrap(async (req, res) => {
+  const ids = (Array.isArray(req.body.items) ? req.body.items : []).map((i) => Number(i.producto_id)).filter(Number.isInteger);
+  if (!ids.length) return res.json([]);
+  const [rows] = await db.query('SELECT id, nombre, precio, stock, activo FROM productos WHERE id IN (?)', [ids]);
+  res.json(rows);
+}));
+
 router.get('/expansiones', wrap(async (_req, res) => {
   const [rows] = await db.query('SELECT * FROM expansiones ORDER BY fecha_lanzamiento DESC, nombre');
   res.json(rows);

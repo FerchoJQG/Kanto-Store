@@ -13,10 +13,12 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [verFiltros, setVerFiltros] = useState(false);
+  const [promociones, setPromociones] = useState([]);
 
   useEffect(() => {
     api('/expansiones').then(setExps).catch(() => {});
     api('/meta').then(setMeta).catch(() => {});
+    api('/config/promociones').then(setPromociones).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -46,6 +48,13 @@ export default function Catalog() {
         <input className="search" placeholder="Buscar carta o SKU… (ej. Charizard)" value={f.q} onChange={set('q')} />
       </section>
 
+      {promociones.length > 0 && <section className="promo-section" aria-label="Promociones vigentes">
+        <h2>Promociones y novedades</h2>
+        <div className="promo-grid">{promociones.map(p => <a key={p.id} className="promo-card" href={p.enlace || '/'}>
+          {p.imagen && <img src={p.imagen} alt="" loading="lazy" />}
+          <div><strong>{p.titulo}</strong><p>{p.descripcion}</p><span>Ver más →</span></div>
+        </a>)}</div>
+      </section>}
       <button className="ghost only-mobile" onClick={() => setVerFiltros(!verFiltros)}>Filtros {verFiltros ? '▲' : '▼'}</button>
       <section className={`filters ${verFiltros ? 'open' : ''}`}>
         <Sel k="tipo" label="Tipo" opts={[{ v: 'single', t: 'Cartas (singles)' }, { v: 'sellado', t: 'Sellados' }]} />

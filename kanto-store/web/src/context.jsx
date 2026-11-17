@@ -46,7 +46,21 @@ export function CartProvider({ children }) {
   const setQty = (id, c) => setItems((cur) => cur.map((i) => (i.id === id ? { ...i, cantidad: Math.max(1, Math.min(c, i.stock)) } : i)));
   const remove = (id) => setItems((cur) => cur.filter((i) => i.id !== id));
   const clear = () => setItems([]);
+  // Revalida el carrito con el stock/precio actual del servidor; devuelve avisos para el cliente.
+  const sincronizar = (rows) => {
+    const avisos = [], nuevos = [];
+    for (const i of items) {
+      const r = rows.find((x) => x.id === i.id);
+      if (!r || !r.activo || r.stock < 1) { avisos.push(`"${i.nombre}" ya no está disponible y se quitó del carrito.`); continue; }
+      const cantidad = Math.min(i.cantidad, r.stock);
+      if (cantidad < i.cantidad) avisos.push(`De "${i.nombre}" solo quedan ${r.stock}; ajustamos la cantidad.`);
+      if (Number(r.precio) !== Number(i.precio)) avisos.push(`El precio de "${i.nombre}" cambió a Bs ${Number(r.precio).toFixed(2)}.`);
+      nuevos.push({ ...i, cantidad, stock: r.stock, precio: r.precio });
+    }
+    setItems(nuevos);
+    return avisos;
+  };
   const total = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
   const count = items.reduce((s, i) => s + i.cantidad, 0);
-  return <CartCtx.Provider value={{ items, add, setQty, remove, clear, total, count }}>{children}</CartCtx.Provider>;
+  return <CartCtx.Provider value={{ items, add, setQty, remove, clear, sincronizar, total, count }}>{children}</CartCtx.Provider>;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { api, bs, etiqueta } from '../api.js';
+import { api, bs, etiqueta, stockTexto, stockClase } from '../api.js';
 import { useAuth, useCart } from '../context.jsx';
 import { Img } from '../components/ProductCard.jsx';
 
@@ -30,7 +30,7 @@ export default function Product() {
           {fila('Idioma', etiqueta(p.idioma))}
           {fila('Estado de conservación', <span className={`tag estado-${p.estado_conservacion}`}>{etiqueta(p.estado_conservacion)}</span>)}
           {fila('SKU', p.sku)}
-          {fila('Stock', p.stock > 0 ? `${p.stock} disponible(s)` : 'Agotado')}
+          {fila('Disponibilidad', <b className={stockClase(p)}>{stockTexto(p)}</b>)}
         </tbody></table>
         {p.descripcion && <p>{p.descripcion}</p>}
         <div className="row gap">

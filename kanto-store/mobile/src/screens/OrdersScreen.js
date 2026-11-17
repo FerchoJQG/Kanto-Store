@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, Linking } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { api, bs, etiqueta } from '../api';
 import { s } from '../ui';
-import { API_URL, COLORS } from '../config';
+import { API_URL, COLORS, WEB_URL } from '../config';
 import { useStore } from '../store';
 
 export default function OrdersScreen() {
@@ -19,8 +19,10 @@ export default function OrdersScreen() {
           <View style={[s.row, { justifyContent: 'space-between' }]}><Text style={{ fontWeight: '800' }}>{p.codigo}</Text><Text style={{ color: COLORS.blue }}>{etiqueta(p.estado)}</Text></View>
           <Text style={s.muted}>{new Date(p.creado_en).toLocaleString()} · {etiqueta(p.metodo_pago)}</Text>
           {p.items.map((i, k) => <Text key={k}>{i.cantidad} × {i.nombre}</Text>)}
+          {!!p.pin_entrega && <View style={{ backgroundColor: '#fff8d6', padding: 8, borderRadius: 8, marginTop: 6 }}><Text>PIN de entrega: <Text style={{ fontWeight: '800', letterSpacing: 3 }}>{p.pin_entrega}</Text></Text></View>}
           <View style={[s.row, { justifyContent: 'space-between', marginTop: 6 }]}>
             <Text style={{ fontWeight: '800' }}>{bs(p.total)}</Text>
+            <TouchableOpacity onPress={() => Linking.openURL(`${WEB_URL}/seguimiento/${p.codigo}?email=${encodeURIComponent(p.email)}`)}><Text style={{ color: COLORS.blue }}>Seguimiento</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => Linking.openURL(`${API_URL}/pedidos/comprobante/${p.codigo}?email=${encodeURIComponent(p.email)}`)}><Text style={{ color: COLORS.blue }}>Comprobante</Text></TouchableOpacity>
           </View>
         </View>)} />

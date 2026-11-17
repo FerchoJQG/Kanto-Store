@@ -21,9 +21,10 @@ export function MyOrders() {
     {!rows.length && <p className="empty">Todavía no has hecho pedidos.</p>}
     {rows.map((p) => (
       <div className="panel" key={p.id}>
-        <div className="row between"><strong>{p.codigo}</strong><span className="tag">{etiqueta(p.estado)}</span></div>
+        <div className="row between"><strong>{p.codigo}</strong><span className={`tag est-${p.estado}`}>{etiqueta(p.estado)}</span></div>
         <p className="muted">{new Date(p.creado_en).toLocaleString('es-BO')} · {etiqueta(p.metodo_pago)}</p>
         <ul>{p.items.map((i, k) => <li key={k}>{i.cantidad} × {i.nombre}</li>)}</ul>
+        {p.pin_entrega && <div className="pinbox">PIN de entrega: <b>{p.pin_entrega}</b></div>}
         <div className="row between"><strong>{bs(p.total)}</strong>
           <span><Link to={`/seguimiento/${p.codigo}?email=${encodeURIComponent(p.email)}`}>Seguir</Link> · <a target="_blank" rel="noreferrer" href={`${apiBase}/pedidos/comprobante/${p.codigo}?email=${encodeURIComponent(p.email)}`}>Comprobante</a></span></div>
       </div>))}</>);

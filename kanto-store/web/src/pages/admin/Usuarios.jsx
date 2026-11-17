@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, etiqueta } from '../../api.js';
+import { api, etiqueta, ROLES } from '../../api.js';
 import { useAuth } from '../../context.jsx';
 
 export default function Usuarios() {
@@ -22,7 +22,7 @@ export default function Usuarios() {
             <label>Nombre<input required value={nuevo.nombre} onChange={set('nombre')} /></label>
             <label>Email<input required type="email" value={nuevo.email} onChange={set('email')} /></label>
             <label>Contraseña<input required minLength={6} value={nuevo.password} onChange={set('password')} /></label>
-            <label>Rol<select value={nuevo.rol} onChange={set('rol')}>{['cliente', 'admin', 'stock', 'repartidor'].map((r) => <option key={r} value={r}>{etiqueta(r)}</option>)}</select></label>
+            <label>Rol<select value={nuevo.rol} onChange={set('rol')}>{ROLES.map((r) => <option key={r} value={r}>{etiqueta(r)}</option>)}</select></label>
           </div>
           <div className="row gap"><button>Crear</button><button type="button" className="ghost" onClick={() => setNuevo(null)}>Cancelar</button></div>
         </form>)}
@@ -30,7 +30,7 @@ export default function Usuarios() {
         <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th></tr></thead>
         <tbody>{rows.map((u) => (
           <tr key={u.id}><td>{u.nombre}</td><td>{u.email}</td>
-            <td><select disabled={u.id === user.id} value={u.rol} onChange={(e) => patch(u.id, { rol: e.target.value })}>{['cliente', 'admin', 'stock', 'repartidor'].map((r) => <option key={r} value={r}>{etiqueta(r)}</option>)}</select></td>
+            <td><select disabled={u.id === user.id} value={u.rol} onChange={(e) => patch(u.id, { rol: e.target.value })}>{ROLES.map((r) => <option key={r} value={r}>{etiqueta(r)}</option>)}</select></td>
             <td><input type="checkbox" disabled={u.id === user.id} checked={!!u.activo} onChange={(e) => patch(u.id, { activo: e.target.checked })} /></td></tr>))}</tbody>
       </table></div>
     </>

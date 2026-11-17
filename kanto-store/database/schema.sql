@@ -1,7 +1,7 @@
 -- Kanto Store — esquema MySQL 8
 -- (La base de datos la elige DB_NAME en backend/.env; este script solo crea las tablas)
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS pedido_items, pedidos, notificaciones, wishlist, productos, expansiones, usuarios;
+DROP TABLE IF EXISTS pedido_historial, movimientos_stock, configuracion, pedido_items, pedidos, notificaciones, wishlist, productos, expansiones, usuarios;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE usuarios (
@@ -10,7 +10,7 @@ CREATE TABLE usuarios (
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(100) NOT NULL,
   telefono VARCHAR(30),
-  rol ENUM('cliente','admin','stock','repartidor') NOT NULL DEFAULT 'cliente',
+  rol ENUM('cliente','admin','stock','repartidor','empacador') NOT NULL DEFAULT 'cliente',
   activo TINYINT(1) NOT NULL DEFAULT 1,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -44,7 +44,7 @@ CREATE TABLE productos (
   CONSTRAINT chk_precio CHECK (precio >= 0),
   FOREIGN KEY (expansion_id) REFERENCES expansiones(id) ON DELETE SET NULL,
   INDEX idx_filtros (tipo, expansion_id, rareza, idioma, estado_conservacion),
-  FULLTEXT INDEX ft_nombre (nombre)
+  INDEX idx_nombre (nombre)
 ) ENGINE=InnoDB;
 
 CREATE TABLE wishlist (
@@ -76,10 +76,22 @@ CREATE TABLE pedidos (
   telefono VARCHAR(30),
   direccion VARCHAR(255),
   metodo_entrega ENUM('envio','retiro') NOT NULL DEFAULT 'envio',
-  metodo_pago ENUM('qr','transferencia','contra_entrega') NOT NULL,
-  estado ENUM('pendiente','pagado','preparando','en_transito','entregado','cancelado') NOT NULL DEFAULT 'pendiente',
+  metodo_pago ENUM('qr','transferencia','contra_entrega','paypal') NOT NULL,
+  estado ENUM('pendiente','pagado','preparando','en_transito','entregado','cancelado','por_verificar','empacado') NOT NULL DEFAULT 'pendiente',
   total DECIMAL(10,2) NOT NULL,
   repartidor_id INT NULL,
+  pin_entrega VARCHAR(6) NULL,            -- el cliente lo entrega al repartidor para cerrar la entrega
+  expira_en TIMESTAMP NULL,               -- pedidos sin pagar se cancelan y devuelven el stock
+  comprobante_pago MEDIUMTEXT NULL,       -- imagen (data URL) del depósito/transferencia/QR
+  comprobante_ref VARCHAR(80) NULL,       -- n.º de transacción
+  paypal_order_id VARCHAR(40) NULL,
+  paypal_capture_id VARCHAR(40) NULL,
+  pagado_en TIMESTAMP NULL,
+  empacador_id INT NULL,
+  empacado_en TIMESTAMP NULL,
+  entregado_en TIMESTAMP NULL,
+  monto_cobrado DECIMAL(10,2) NULL,       -- contra entrega
+  nota_entrega VARCHAR(255) NULL,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
@@ -94,6 +106,40 @@ CREATE TABLE pedido_items (
   nombre VARCHAR(150) NOT NULL,
   precio_unitario DECIMAL(10,2) NOT NULL,
   cantidad INT NOT NULL,
+  verificado TINYINT(1) NOT NULL DEFAULT 0,   -- checklist de empaque
   FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
   FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Línea de tiempo del pedido
+CREATE TABLE pedido_historial (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pedido_id INT NOT NULL,
+  estado VARCHAR(30) NOT NULL,
+  usuario_id INT NULL,
+  nota VARCHAR(255),
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_hist_pedido (pedido_id),
+  FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Kardex: todo cambio de stock queda registrado
+CREATE TABLE movimientos_stock (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  producto_id INT NOT NULL,
+  tipo ENUM('entrada','salida','ajuste','venta','devolucion','inicial') NOT NULL,
+  cantidad INT NOT NULL,                  -- positivo suma, negativo resta
+  stock_resultante INT NOT NULL,
+  usuario_id INT NULL,
+  pedido_id INT NULL,
+  nota VARCHAR(255),
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_mov_prod (producto_id, creado_en),
+  FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Configuración de cobros (QR real, datos bancarios)
+CREATE TABLE configuracion (
+  clave VARCHAR(50) PRIMARY KEY,
+  valor MEDIUMTEXT
 ) ENGINE=InnoDB;

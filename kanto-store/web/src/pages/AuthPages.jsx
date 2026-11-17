@@ -14,7 +14,7 @@ function Form({ registro }) {
     try {
       const data = await api(registro ? '/auth/register' : '/auth/login', { method: 'POST', body: f, token: '' });
       login(data);
-      nav(['admin', 'stock', 'repartidor'].includes(data.user.rol) ? '/admin' : '/');
+      nav(['admin', 'stock', 'repartidor', 'empacador'].includes(data.user.rol) ? '/admin' : '/');
     } catch (err) { setError(err.message); }
   };
   return (

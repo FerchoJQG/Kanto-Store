@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, bs, etiqueta, apiBase } from '../api.js';
 import { useAuth, useCart } from '../context.jsx';
+import PagoPanel from '../components/PagoPanel.jsx';
 
 export default function Checkout() {
   const { items, total, clear } = useCart();
@@ -13,6 +14,8 @@ export default function Checkout() {
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const [pedido, setPedido] = useState(null);
+  const [cfg, setCfg] = useState({ paypal: false });
+  useEffect(() => { api('/config/pagos').then(setCfg).catch(() => {}); }, []);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   if (pedido) return <Resultado pedido={pedido} email={f.email} />;
@@ -22,7 +25,12 @@ export default function Checkout() {
     e.preventDefault(); setError(''); setSending(true);
     try {
       const p = await api('/pedidos', { method: 'POST', body: { ...f, items: items.map((i) => ({ producto_id: i.id, cantidad: i.cantidad })) } });
-      clear(); setPedido(p);
+      clear();
+      if (p.metodo_pago === 'paypal') { // PayPal: crea la orden y redirige a aprobar el pago
+        try { const r = await api('/paypal/crear', { method: 'POST', body: { codigo: p.codigo, email: f.email } }); window.location.href = r.approve_url; return; }
+        catch (er) { setError(`Tu pedido ${p.codigo} quedó pendiente, pero PayPal falló: ${er.message}`); }
+      }
+      setPedido(p);
     } catch (err) { setError(err.message); } finally { setSending(false); }
   };
 
@@ -40,9 +48,11 @@ export default function Checkout() {
           <label className="radio"><input type="radio" checked={f.metodo_entrega === 'retiro'} onChange={() => setF({ ...f, metodo_entrega: 'retiro' })} /> Retiro en tienda</label>
           {f.metodo_entrega === 'envio' && <label>Dirección<input required value={f.direccion} onChange={set('direccion')} /></label>}
           <h3>Pago</h3>
-          {['qr', 'transferencia', 'contra_entrega'].map((m) => (
-            <label key={m} className="radio"><input type="radio" checked={f.metodo_pago === m} onChange={() => setF({ ...f, metodo_pago: m })} /> {m === 'qr' ? 'QR' : etiqueta(m)}</label>
+          {['qr', 'transferencia', 'paypal', 'contra_entrega'].filter((m) => m !== 'paypal' || cfg.paypal).map((m) => (
+            <label key={m} className="radio"><input type="radio" checked={f.metodo_pago === m} onChange={() => setF({ ...f, metodo_pago: m })} />
+              {m === 'qr' ? 'QR bancario' : m === 'paypal' ? 'PayPal (tarjeta o cuenta PayPal)' : etiqueta(m)}</label>
           ))}
+          {f.metodo_pago === 'contra_entrega' && f.metodo_entrega === 'envio' && <p className="muted">Pagas en efectivo al recibir; el repartidor registrará el cobro.</p>}
         </div>
         <div className="panel">
           <h3>Resumen</h3>
@@ -57,21 +67,26 @@ export default function Checkout() {
 }
 
 function Resultado({ pedido, email }) {
+  const [hecho, setHecho] = useState(false);
   return (
-    <div className="panel center-text">
-      <h1>¡Pedido registrado! 🎉</h1>
-      <p>Código: <strong>{pedido.codigo}</strong> — Total {bs(pedido.total)}</p>
-      {pedido.qr && (<><p>Escanea el QR para pagar:</p><img className="qr" src={pedido.qr} alt="QR de pago" /><p className="muted">Pago simulado: el administrador confirmará el pago.</p></>)}
-      {pedido.datos_transferencia && (
-        <div className="panel left"><p>Transfiere a:</p>
-          <ul><li>Banco: {pedido.datos_transferencia.banco}</li><li>Cuenta: {pedido.datos_transferencia.cuenta}</li>
-            <li>Titular: {pedido.datos_transferencia.titular}</li><li>Referencia: <b>{pedido.datos_transferencia.referencia}</b></li></ul></div>
+    <div className="narrow-wide">
+      <div className="panel center-text">
+        <h1>¡Pedido registrado! 🎉</h1>
+        <p>Código: <strong>{pedido.codigo}</strong> — Total {bs(pedido.total)}</p>
+        {pedido.metodo_pago === 'contra_entrega'
+          ? <p>Pedido confirmado. Pagarás al recibirlo.</p>
+          : <p className="muted">Tu pedido se confirma cuando verifiquemos el pago.</p>}
+        <div className="pinbox">Tu PIN de entrega: <b>{pedido.pin_entrega}</b><small>Guárdalo: se lo das al repartidor solo cuando recibas tu pedido.</small></div>
+        <p>
+          <Link className="btn" to={`/seguimiento/${pedido.codigo}?email=${encodeURIComponent(email)}`}>Seguir mi pedido</Link>{' '}
+          <a className="btn ghost" target="_blank" rel="noreferrer" href={`${apiBase}/pedidos/comprobante/${pedido.codigo}?email=${encodeURIComponent(email)}`}>Comprobante PDF</a>
+        </p>
+      </div>
+      {['qr', 'transferencia'].includes(pedido.metodo_pago) && !hecho && (
+        <PagoPanel pedido={{ ...pedido, estado: 'pendiente' }} email={email} onCambio={() => setHecho(true)} />
       )}
-      {pedido.metodo_pago === 'contra_entrega' && <p>Pagarás al recibir tu pedido.</p>}
-      <p>
-        <a className="btn" target="_blank" rel="noreferrer" href={`${apiBase}/pedidos/comprobante/${pedido.codigo}?email=${encodeURIComponent(email)}`}>Descargar comprobante (PDF)</a>{' '}
-        <Link className="btn ghost" to={`/seguimiento/${pedido.codigo}?email=${encodeURIComponent(email)}`}>Seguir pedido</Link>
-      </p>
+      {hecho && <p className="ok center-text">✔ Comprobante enviado. Puedes seguir el estado desde "Seguir mi pedido".</p>}
+      {pedido.metodo_pago === 'paypal' && <PagoPanel pedido={{ ...pedido, estado: 'pendiente' }} email={email} />}
     </div>
   );
 }

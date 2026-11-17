@@ -15,6 +15,10 @@ import Pedidos from './pages/admin/Pedidos.jsx';
 import Usuarios from './pages/admin/Usuarios.jsx';
 import Inventario from './pages/admin/Inventario.jsx';
 import Entregas from './pages/admin/Entregas.jsx';
+import Preparacion from './pages/admin/Preparacion.jsx';
+import Pagos from './pages/admin/Pagos.jsx';
+import PaypalReturn from './pages/PaypalReturn.jsx';
+import Promociones from './pages/admin/Promociones.jsx';
 
 function Protegida({ roles }) {
   const { user } = useAuth();
@@ -35,6 +39,8 @@ export default function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/seguimiento" element={<Track />} />
           <Route path="/seguimiento/:codigo" element={<Track />} />
+          <Route path="/paypal/retorno" element={<PaypalReturn />} />
+          <Route path="/paypal/cancelado" element={<PaypalReturn />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
           <Route element={<Protegida />}>
@@ -42,7 +48,7 @@ export default function App() {
             <Route path="/mis-pedidos" element={<MyOrders />} />
             <Route path="/notificaciones" element={<Notifications />} />
           </Route>
-          <Route element={<Protegida roles={['admin', 'stock', 'repartidor']} />}>
+          <Route element={<Protegida roles={['admin', 'stock', 'repartidor', 'empacador']} />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="productos" element={<Productos />} />
@@ -50,6 +56,9 @@ export default function App() {
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="entregas" element={<Entregas />} />
+              <Route path="preparacion" element={<Preparacion />} />
+              <Route path="pagos" element={<Pagos />} />
+              <Route path="promociones" element={<Promociones />} />
             </Route>
           </Route>
           <Route path="*" element={<p>Página no encontrada.</p>} />

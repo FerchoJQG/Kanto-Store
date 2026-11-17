@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth, useCart } from '../context.jsx';
-import { bs, etiqueta, PLACEHOLDER } from '../api.js';
+import { bs, etiqueta, PLACEHOLDER, stockTexto, stockClase } from '../api.js';
 
 export const Img = ({ src, alt }) => (
   <img src={src || PLACEHOLDER} alt={alt} loading="lazy" onError={(e) => { e.currentTarget.src = PLACEHOLDER; }} />
@@ -23,7 +23,7 @@ export default function ProductCard({ p }) {
         </div>
         <div className="row between">
           <strong className="price">{bs(p.precio)}</strong>
-          <span className={p.stock > 0 ? 'ok' : 'bad'}>{p.stock > 0 ? `${p.stock} disp.` : 'Agotado'}</span>
+          <span className={stockClase(p)}>{stockTexto(p)}</span>
         </div>
         <div className="row gap">
           <button disabled={p.stock < 1} onClick={() => add(p)}>Agregar</button>

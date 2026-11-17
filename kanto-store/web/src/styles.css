@@ -1,5 +1,5 @@
 :root{--bg:#f5f7fb;--card:#fff;--ink:#1d2433;--muted:#6b7488;--brand:#e63946;--brand2:#ffcb05;--blue:#3b4cca;--line:#e2e6ef;--ok:#1a9d5b;--bad:#d62839;--radius:12px}
-@media (prefers-color-scheme:dark){:root{--bg:#10131c;--card:#1a1f2e;--ink:#eef1f8;--muted:#9aa3b8;--line:#2b3247}}
+[data-tema='oscuro']{--bg:#10131c;--card:#1a1f2e;--ink:#eef1f8;--muted:#9aa3b8;--line:#2b3247;--blue:#8395ff}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
 a{color:var(--blue);text-decoration:none}
@@ -66,3 +66,31 @@ table.data th,table.data td{padding:8px 10px;border-bottom:1px solid var(--line)
   .two,.detail,.admin{grid-template-columns:1fr}
   .grid{grid-template-columns:repeat(2,1fr);gap:10px}
 }
+
+/* ---- v2: pagos, empaque, entrega ---- */
+.warn{color:#b26a00}
+.narrow-wide{max-width:640px;margin:16px auto}
+.pinbox{background:#fff8d6;border:2px dashed #e0b800;border-radius:var(--radius);padding:12px;margin:12px 0;text-align:center;color:#4a3b00}
+.pinbox b{display:block;font-size:2rem;letter-spacing:6px;margin:2px 0}.pinbox small{display:block;font-size:.8rem}
+.pago .datos{list-style:none;padding:0;line-height:1.9}
+.comprobante{border-top:1px solid var(--line);margin-top:12px;padding-top:8px}
+.vista{max-width:100%;max-height:260px;border-radius:8px;border:1px solid var(--line);display:block;margin:8px 0}.vista.grande{max-height:70vh;margin:8px auto}
+button.paypal{background:#ffc439;color:#111;font-size:1.05rem;padding:11px 28px}
+.timeline{list-style:none;padding:0;border-left:3px solid var(--line);margin-left:6px}.timeline li{padding:4px 0 8px 12px}
+.checklist{list-style:none;padding:0}.checklist .radio{padding:6px 0;font-size:1.05rem}.checklist input[type=checkbox]{width:22px;height:22px}
+.tag.est-pendiente,.tag.est-por_verificar{background:#fff3d1;color:#8a6200}
+.tag.est-pagado,.tag.est-preparando,.tag.est-empacado{background:#e1f0ff;color:#1b5aa6}
+.tag.est-en_transito{background:#ece2ff;color:#5b34b5}.tag.est-entregado{background:#d7f5e5;color:#126b3f}.tag.est-cancelado{background:#fde0e0;color:#a02020}
+.admin aside a{font-size:.95rem}
+
+/* Personalización visual y promociones */
+.theme-toggle{white-space:nowrap;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);padding:6px 10px}
+.promo-section{margin:18px 0 24px}.promo-section h2{font-size:1.3rem}
+.promo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:14px}
+.promo-card{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);box-shadow:0 5px 22px rgba(0,0,0,.06);transition:transform .2s,box-shadow .2s}
+.promo-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(0,0,0,.13)}
+.promo-card img{width:100%;height:150px;object-fit:cover}
+.promo-card div{padding:16px}.promo-card strong{font-size:1.1rem}.promo-card p{color:var(--muted);margin:8px 0}.promo-card span{color:var(--brand);font-weight:700}
+.card{transition:transform .2s,box-shadow .2s}.card:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(0,0,0,.09)}
+[data-tema='oscuro'] .nav{background:#20284d}[data-tema='oscuro'] .hero{background:linear-gradient(135deg,#28356e,#4c357c)}
+[data-tema='oscuro'] a{color:#9aaaff}[data-tema='oscuro'] .nav a{color:#fff}[data-tema='oscuro'] .brand{color:#ffcb05}

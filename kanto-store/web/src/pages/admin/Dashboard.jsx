@@ -12,6 +12,7 @@ export default function Dashboard() {
       <div className="kpis">
         <div className="kpi"><span>Ingresos</span><b>{bs(r.ingresos)}</b></div>
         <div className="kpi"><span>Pedidos pagados/activos</span><b>{r.pedidos}</b></div>
+        <div className="kpi"><span>Pagos por verificar</span><b className={r.porVerificar ? 'warn' : ''}>{r.porVerificar}</b></div>
         <div className="kpi"><span>Clientes</span><b>{r.clientes}</b></div>
         <div className="kpi"><span>Stock bajo</span><b className={r.bajoStock ? 'bad' : ''}>{r.bajoStock}</b></div>
       </div>

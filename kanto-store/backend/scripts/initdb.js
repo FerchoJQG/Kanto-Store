@@ -38,6 +38,7 @@ const IMG = (set, n) => `https://images.pokemontcg.io/${set}/${n}.png`;
       ['Encargado de Stock', 'stock@kanto.com', h('stock123'), '70000002', 'stock'],
       ['Repartidor Uno', 'repartidor@kanto.com', h('reparto123'), '70000003', 'repartidor'],
       ['Ash Ketchum', 'cliente@kanto.com', h('cliente123'), '70000004', 'cliente'],
+      ['Encargado de Empaque', 'empaque@kanto.com', h('empaque123'), '70000005', 'empacador'],
     ]]);
 
   await conn.query('INSERT INTO expansiones (nombre,codigo,fecha_lanzamiento) VALUES ?', [[
@@ -67,7 +68,8 @@ const IMG = (set, n) => `https://images.pokemontcg.io/${set}/${n}.png`;
   await conn.query(
     `INSERT INTO productos (sku,tipo,subtipo_sellado,nombre,descripcion,expansion_id,numero_coleccion,rareza,idioma,estado_conservacion,precio,stock,stock_minimo,imagen_url) VALUES ?`, [P]);
 
+  await conn.query("INSERT INTO movimientos_stock (producto_id, tipo, cantidad, stock_resultante, nota) SELECT id, 'inicial', stock, stock, 'Stock inicial' FROM productos");
   console.log(`Tablas creadas en '${dbName}' con datos de ejemplo.`);
-  console.log('Usuarios: admin@kanto.com/admin123 | stock@kanto.com/stock123 | repartidor@kanto.com/reparto123 | cliente@kanto.com/cliente123');
+  console.log('Usuarios: admin@kanto.com/admin123 | stock@kanto.com/stock123 | repartidor@kanto.com/reparto123 | empaque@kanto.com/empaque123 | cliente@kanto.com/cliente123');
   await conn.end();
 })().catch((e) => { console.error(e.message); process.exit(1); });
