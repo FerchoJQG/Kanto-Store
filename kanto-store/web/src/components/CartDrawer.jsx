@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { api, bs } from '../api.js';
 import { useCart } from '../context.jsx';
 import { Img } from './ProductCard.jsx';
+import StoreIcon from './StoreIcon.jsx';
 
 export default function CartDrawer() {
   const { cartOpen, closeCart, items, setQty, remove, total, count, sincronizar } = useCart();
@@ -47,10 +48,10 @@ export default function CartDrawer() {
 
   return <div className="ks-drawer-overlay" onMouseDown={e => { if (e.target === e.currentTarget) closeCart(); }}>
     <aside className="ks-drawer" role="dialog" aria-modal="true" aria-label="Mi carrito" aria-describedby="ks-drawer-help">
-      <header className="ks-drawer-header"><div><small>✦ TU COLECCIÓN</small><h2>MI CARRITO <em>({count})</em></h2><p id="ks-drawer-help">Revisa tus productos antes de comprar.</p></div><button ref={closeRef} type="button" className="ks-drawer-close" onClick={closeCart} aria-label="Cerrar carrito">×</button></header>
+      <header className="ks-drawer-header"><div><small>✦ TU COLECCIÓN</small><h2><StoreIcon name="carrito" size={40}/> MI CARRITO <em>({count})</em></h2><p id="ks-drawer-help">Revisa tus productos antes de comprar.</p></div><button ref={closeRef} type="button" className="ks-drawer-close" onClick={closeCart} aria-label="Cerrar carrito">×</button></header>
       <div className="ks-drawer-scroll">
         {!!avisos.length && <div className="ks-drawer-alerts">{avisos.map((a,i) => <p key={`${i}-${a}`}>{a}</p>)}</div>}
-        {!items.length ? <div className="ks-drawer-empty"><span>🛒</span><h3>Todavía no hay productos</h3><p>Encuentra tu próximo tesoro TCG.</p><button type="button" onClick={closeCart}>EXPLORAR TIENDA ↗</button></div>
+        {!items.length ? <div className="ks-drawer-empty"><StoreIcon name="carrito" size={76}/><h3>Todavía no hay productos</h3><p>Encuentra tu próximo tesoro TCG.</p><button type="button" onClick={closeCart}>EXPLORAR TIENDA ↗</button></div>
           : items.map(i => <article className="ks-drawer-product" key={i.id}>
             <div className="ks-drawer-img"><Img src={i.imagen_url} alt={i.nombre} /></div>
             <div className="ks-drawer-product-info"><strong>{i.nombre}</strong><small>{bs(i.precio)} por unidad · Disponible: {i.stock}</small><div className="ks-drawer-product-bottom"><div className="ks-drawer-qty"><button type="button" onClick={() => setQty(i.id, i.cantidad - 1)} disabled={i.cantidad<=1} aria-label={`Restar una unidad de ${i.nombre}`}>−</button><span>{i.cantidad}</span><button type="button" onClick={() => setQty(i.id, i.cantidad + 1)} disabled={i.cantidad>=i.stock} aria-label={`Agregar una unidad de ${i.nombre}`}>+</button></div><b>{bs(i.precio * i.cantidad)}</b></div></div>

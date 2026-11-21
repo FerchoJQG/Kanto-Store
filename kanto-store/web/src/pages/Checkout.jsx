@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, bs, etiqueta, apiBase } from '../api.js';
 import { useAuth, useCart } from '../context.jsx';
 import PagoPanel from '../components/PagoPanel.jsx';
+import StoreIcon from '../components/StoreIcon.jsx';
 
 export default function Checkout() {
   const { items, total, clear } = useCart();
@@ -47,7 +48,7 @@ export default function Checkout() {
           <label className="radio"><input type="radio" checked={f.metodo_entrega === 'envio'} onChange={() => setF({ ...f, metodo_entrega: 'envio' })} /> Envío a domicilio</label>
           <label className="radio"><input type="radio" checked={f.metodo_entrega === 'retiro'} onChange={() => setF({ ...f, metodo_entrega: 'retiro' })} /> Retiro en tienda</label>
           {f.metodo_entrega === 'envio' && <label>Dirección<input required value={f.direccion} onChange={set('direccion')} /></label>}
-          <h3><span className="ks-checkout-step">03</span> Pago</h3>
+          <h3><span className="ks-checkout-step">03</span> Pago <StoreIcon name="monedas" size={25}/></h3>
           {['qr', 'transferencia', 'paypal', 'contra_entrega'].filter((m) => m !== 'paypal' || cfg.paypal).map((m) => (
             <label key={m} className="radio"><input type="radio" checked={f.metodo_pago === m} onChange={() => setF({ ...f, metodo_pago: m })} />
               {m === 'qr' ? 'QR bancario' : m === 'paypal' ? 'PayPal (tarjeta o cuenta PayPal)' : etiqueta(m)}</label>

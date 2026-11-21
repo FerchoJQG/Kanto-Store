@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react';
+import StoreIcon from './StoreIcon.jsx';
 
 // Mostrar únicamente los medios y modalidades que implementa Kanto Store.
 // PayPal está en SANDBOX: no anunciarlo como cobro real habilitado.
 const servicios = [
-  { icon: '🅿', title: 'PayPal', note: 'Modo de pruebas Sandbox', kind: 'paypal', tag: 'PAGO DE PRUEBA' },
-  { icon: '▦', title: 'QR bancario', note: 'Con comprobante verificable', kind: 'qr', tag: 'PAGO' },
-  { icon: '▤', title: 'Transferencia', note: 'Depósito y comprobante', kind: 'banco', tag: 'PAGO' },
-  { icon: '◈', title: 'Contra entrega', note: 'Disponible según el envío', kind: 'cash', tag: 'PAGO' },
-  { icon: '🚚', title: 'Envío a domicilio', note: 'Preparación y seguimiento', kind: 'envio', tag: 'ENTREGA' },
-  { icon: '🏪', title: 'Retiro en tienda', note: 'Recoge tu pedido confirmado', kind: 'retiro', tag: 'ENTREGA' },
-  { icon: '🔐', title: 'PIN de seguridad', note: 'Confirma al recibir tu compra', kind: 'pin', tag: 'SEGURIDAD' },
-  { icon: '📦', title: 'Empaque verificado', note: 'Revisión antes de entregar', kind: 'empaque', tag: 'PROCESO' },
+  { icon: '🅿', title: 'PayPal', note: 'Modo de pruebas Sandbox', kind: 'paypal', asset: 'monedas', tag: 'PAGO DE PRUEBA' },
+  { icon: '▦', title: 'QR bancario', note: 'Con comprobante verificable', kind: 'qr', asset: 'monedas', tag: 'PAGO' },
+  { icon: '▤', title: 'Transferencia', note: 'Depósito y comprobante', kind: 'banco', asset: 'monedas', tag: 'PAGO' },
+  { icon: '◈', title: 'Contra entrega', note: 'Disponible según el envío', kind: 'cash', asset: 'monedas', tag: 'PAGO' },
+  { icon: '🚚', title: 'Envío a domicilio', note: 'Preparación y seguimiento', kind: 'envio', asset: 'pedidos', tag: 'ENTREGA' },
+  { icon: '🏪', title: 'Retiro en tienda', note: 'Recoge tu pedido confirmado', kind: 'retiro', asset: 'tienda', tag: 'ENTREGA' },
+  { icon: '🔐', title: 'PIN de seguridad', note: 'Confirma al recibir tu compra', kind: 'pin', asset: 'perfil', tag: 'SEGURIDAD' },
+  { icon: '📦', title: 'Empaque verificado', note: 'Revisión antes de entregar', kind: 'empaque', asset: 'etb', tag: 'PROCESO' },
 ];
 const viewSize = 4;
 
 export default function PaymentShippingCarousel() {
   const [start, setStart] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
+  useEffect(() => {
+    const update = () => setHidden(document.hidden);
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
     const m = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -26,10 +33,10 @@ export default function PaymentShippingCarousel() {
     return () => m.removeEventListener?.('change', update);
   }, []);
   useEffect(() => {
-    if (paused || reduced) return;
+    if (paused || reduced || hidden) return;
     const timer = window.setInterval(() => setStart(i => (i + 1) % servicios.length), 5200);
     return () => window.clearInterval(timer);
-  }, [paused, reduced]);
+  }, [paused, reduced, hidden]);
   const move = delta => setStart(i => (i + delta + servicios.length) % servicios.length);
   const visibles = Array.from({ length: viewSize }, (_, i) => servicios[(start + i) % servicios.length]);
   return (
@@ -41,7 +48,7 @@ export default function PaymentShippingCarousel() {
           <div className="ks-payments-window" aria-live="off">
             <div className="ks-payments-list" key={start}>
               {visibles.map((s, i) => <div key={`${start}-${s.kind}`} className={`ks-payments-item ks-payment-${s.kind}`}>
-                <span className="ks-payments-item-icon" aria-hidden="true">{s.icon}</span><div><small>{s.tag}</small><strong>{s.title}</strong><span>{s.note}</span></div>
+                <span className="ks-payments-item-icon" aria-hidden="true"><StoreIcon name={s.asset} size={38}/></span><div><small>{s.tag}</small><strong>{s.title}</strong><span>{s.note}</span></div>
               </div>)}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import StoreIcon from './StoreIcon.jsx';
 
 // Imágenes originales del ZIP de referencia, editables en web/public/assets/carrusel.
 const slides = [
@@ -12,12 +13,18 @@ const slides = [
 export default function HeroCarousel() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
+  useEffect(() => {
+    const update = () => setHidden(document.hidden);
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
   const visual = useRef(null);
   useEffect(() => {
-    if (paused) return;
+    if (paused || hidden) return;
     const timer = setInterval(() => setIndex(i => (i + 1) % slides.length), 6000);
     return () => clearInterval(timer);
-  }, [paused]);
+  }, [paused, hidden]);
   const move = e => {
     if (e.pointerType === 'touch' || !visual.current) return;
     const bounds = visual.current.getBoundingClientRect();
@@ -46,7 +53,7 @@ export default function HeroCarousel() {
           <a className="ks-btn ks-btn-primary" href="#catalogo">Explorar la tienda <span>↗</span></a>
           <a className="ks-btn ks-btn-outline" href="#categorias">Ver categorías <span>→</span></a>
         </div>
-        <div className="ks-hero-social"><div className="ks-mini-icons"><span>⚡</span><span>🔥</span><span>✨</span></div><div><strong>Tu universo TCG, en un solo lugar</strong><small>Explora • Elige • Colecciona</small></div></div>
+        <div className="ks-hero-social"><div className="ks-mini-icons"><span><StoreIcon name="cartas" size={29}/></span><span><StoreIcon name="sobres" size={29}/></span><span><StoreIcon name="coleccion" size={29}/></span></div><div><strong>Tu universo TCG, en un solo lugar</strong><small>Explora • Elige • Colecciona</small></div></div>
       </div>
       <div className="ks-hero-visual" ref={visual} role="region" aria-roledescription="carrusel" aria-label="Cartas destacadas" tabIndex="0" onPointerMove={move} onPointerEnter={() => setPaused(true)} onPointerLeave={reset} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)} onKeyDown={e => { if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); }}>
         <div className="ks-hero-orbit ks-orbit-a" aria-hidden="true"/><div className="ks-hero-orbit ks-orbit-b" aria-hidden="true"/>

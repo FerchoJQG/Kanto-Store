@@ -517,3 +517,32 @@ a{transition:color .2s}
 .ks-zoom-stage>span{color:#7589b1;font-size:9px;font-weight:800;letter-spacing:1px}
 @media(max-width:600px){.ks-zoom-art{max-width:75vw;max-height:58vh}.ks-zoom-art img{max-height:58vh}.ks-zoom-stage>span{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.ks-zoom-art,.ks-product-zoom-trigger>img{transition:none!important}}
+
+/* ÍCONOS POKÉMON APORTADOS POR EL PROYECTO */
+.ks-store-icon{display:inline-block;flex:0 0 auto;object-fit:contain;vertical-align:middle;max-width:none}
+.ks-nav-links a:has(.ks-store-icon),.ks-account-link{display:inline-flex;align-items:center;gap:7px}
+.ks-nav-actions .ks-icon-btn{display:inline-flex;align-items:center;justify-content:center}
+.ks-nav-actions .ks-store-icon{transition:transform .18s ease}
+.ks-nav-actions a:hover .ks-store-icon,.ks-cart-link:hover .ks-store-icon{transform:translateY(-2px) scale(1.06)}
+.ks-cart-link .ks-store-icon{width:35px;height:35px}
+.ks-mega-emoji{display:grid;place-items:center;min-width:48px}
+.ks-category-icon{position:absolute;top:18px;right:17px;z-index:3;width:48px;height:48px;border:1px solid #fff5;background:#111a31ba;border-radius:13px;display:grid;place-items:center}
+.ks-category-icon img{width:37px;height:37px}
+.ks-search-box>.ks-store-icon{margin-right:10px}
+.ks-filters-toggle>.ks-store-icon{margin-right:-9px}
+.ks-collections-top>span{display:inline-flex;align-items:center;gap:10px}
+.ks-payments-item-icon .ks-store-icon{width:38px;height:38px}
+.ks-drawer-header h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ks-drawer-empty>.ks-store-icon{width:76px;height:76px;margin:0 auto 12px}
+.ks-checkout h3>.ks-store-icon{vertical-align:middle;margin-left:6px}
+.ks-mini-icons span{font-size:0;overflow:hidden}.ks-mini-icons .ks-store-icon{width:29px;height:29px}
+@media (max-width:680px){.ks-nav-actions .ks-store-icon{width:27px;height:27px}.ks-category-icon{width:40px;height:40px;right:12px;top:12px}.ks-category-icon img{width:31px;height:31px}}
+/* Menos repintados y filtros pesados mientras la tienda carga. */
+.ks-hero-slide:not(.is-active) .ks-hero-card-image{animation-play-state:paused}
+.ks-hero-backdrop{will-change:auto}
+@media(max-width:820px){.ks-hero-card-float:before{filter:blur(22px)}.ks-hero-card-label{backdrop-filter:none}.ks-drawer-overlay{backdrop-filter:none}}
+@media(prefers-reduced-motion:reduce){.ks-nav-actions .ks-store-icon,.ks-store-icon{transition:none!important}.ks-hero-card-image{animation:none!important}}
+
+.ks-slow-notice{margin:15px 0 22px;padding:13px 17px;border:1px solid #e7ba54;background:#fef4db;color:#433713;border-radius:12px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.ks-slow-notice button,.ks-catalog .alert button{cursor:pointer;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;font-weight:800;padding:7px 11px}
+.ks-collections,.ks-guide,.ks-promos{content-visibility:auto;contain-intrinsic-size:auto 520px}

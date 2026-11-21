@@ -4,13 +4,38 @@ import { api, etiqueta } from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 import PaymentShippingCarousel from '../components/PaymentShippingCarousel.jsx';
+import StoreIcon from '../components/StoreIcon.jsx';
 
 const VACIO = { q: '', tipo: '', subtipo: '', categoria: '', expansion: '', rareza: '', idioma: '', estado: '', orden: '' };
+// Último catálogo consultado: evita una página en blanco al recargar mientras Render despierta.
+// No se guarda ningún token ni dato personal. Se revalida siempre en segundo plano.
+const CATALOG_CACHE = 'kanto_catalog_v3';
+const CACHE_AGE = 1000 * 60 * 10;
+const EMPTY_LIST = { items: [], total: 0, paginas: 1 };
+function readCatalogCache(key) {
+  try {
+    const c = JSON.parse(sessionStorage.getItem(CATALOG_CACHE) || 'null');
+    return c?.key === key && Date.now() - c.at < CACHE_AGE && Array.isArray(c.data?.items) ? c.data : null;
+  } catch { return null; }
+}
+function saveCatalogCache(key, data) {
+  try { sessionStorage.setItem(CATALOG_CACHE, JSON.stringify({ key, data, at: Date.now() })); } catch { /* Almacenamiento opcional */ }
+}
+function readReferenceCache(key) {
+  try {
+    const c = JSON.parse(sessionStorage.getItem(key) || 'null');
+    return c && Date.now() - c.at < CACHE_AGE ? c.data : null;
+  } catch { return null; }
+}
+function saveReferenceCache(key, data) {
+  try { sessionStorage.setItem(key, JSON.stringify({data,at:Date.now()})); } catch { /* opcional */ }
+}
+
 const categoriaItems = [
-  { n: '01', title: 'CARTAS', sub: 'CARTAS SUELTAS', note: 'Cartas en español de distintas expansiones', tipo: 'single', subtipo: '', categoria: '', art: 'card', imagen: '/assets/categories/carta-darkrai-ex.png' },
-  { n: '02', title: 'SOBRES', sub: 'BOOSTER PACKS', note: 'Sobres para descubrir nuevas cartas', tipo: 'sellado', subtipo: 'sobre', categoria: '', art: 'pack', imagen: '/assets/categories/sobre-dominio-delta.webp' },
-  { n: '03', title: 'BOOSTER BOXES', sub: 'CAJAS DE SOBRES', note: 'Cajas completas de tus expansiones', tipo: 'sellado', subtipo: 'caja', categoria: 'booster', art: 'box', imagen: '/assets/categories/booster-oscuridad-absoluta.webp' },
-  { n: '04', title: 'ELITE TRAINER BOX', sub: 'ETB', note: 'Colecciones para entrenadores', tipo: 'sellado', subtipo: 'caja', categoria: 'etb', art: 'deck', imagen: '/assets/categories/etb-dominio-delta.webp' },
+  { n: '01', title: 'CARTAS', sub: 'CARTAS SUELTAS', note: 'Cartas en español de distintas expansiones', tipo: 'single', subtipo: '', categoria: '', art: 'card', icono: 'cartas', imagen: '/assets/categories/carta-darkrai-ex.png' },
+  { n: '02', title: 'SOBRES', sub: 'BOOSTER PACKS', note: 'Sobres para descubrir nuevas cartas', tipo: 'sellado', subtipo: 'sobre', categoria: '', art: 'pack', icono: 'sobres', imagen: '/assets/categories/sobre-dominio-delta.webp' },
+  { n: '03', title: 'BOOSTER BOXES', sub: 'CAJAS DE SOBRES', note: 'Cajas completas de tus expansiones', tipo: 'sellado', subtipo: 'caja', categoria: 'booster', art: 'box', icono: 'coleccion', imagen: '/assets/categories/booster-oscuridad-absoluta.webp' },
+  { n: '04', title: 'ELITE TRAINER BOX', sub: 'ETB', note: 'Colecciones para entrenadores', tipo: 'sellado', subtipo: 'caja', categoria: 'etb', art: 'deck', icono: 'etb', imagen: '/assets/categories/etb-dominio-delta.webp' },
 ];
 const colecciones = [
   { nombre: 'Dominio Delta', logo: '/assets/collection-logos/me06-logo.png' },
@@ -27,10 +52,12 @@ export default function Catalog() {
   const location = useLocation();
   const [f, setF] = useState(VACIO);
   const [page, setPage] = useState(1);
-  const [data, setData] = useState({ items: [], total: 0, paginas: 1 });
+  const [data, setData] = useState(() => readCatalogCache('page=1') || EMPTY_LIST);
   const [exps, setExps] = useState([]);
   const [meta, setMeta] = useState({ rarezas: [], idiomas: [], estados: [] });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !readCatalogCache('page=1'));
+  const [slow, setSlow] = useState(false);
+  const [retry, setRetry] = useState(0);
   const [error, setError] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [promos, setPromos] = useState([]);
@@ -45,9 +72,21 @@ export default function Catalog() {
   };
 
   useEffect(() => {
-    api('/expansiones').then(setExps).catch(() => {});
-    api('/meta').then(setMeta).catch(() => {});
-    api('/config/promociones').then(setPromos).catch(() => {});
+    const controller = new AbortController();
+    const refs = [
+      ['/expansiones', 'kanto_refs_exp_v1', setExps],
+      ['/meta', 'kanto_refs_meta_v1', setMeta],
+      ['/config/promociones', 'kanto_refs_promos_v1', setPromos],
+    ];
+    refs.forEach(([url, key, setter]) => {
+      const cached = readReferenceCache(key);
+      if (cached) setter(cached);
+      // Una sola carga de metadatos por sesión reciente, no tres solicitudes por cada recarga.
+      if (!cached) api(url, { signal: controller.signal }).then(d => {
+        if (!controller.signal.aborted) { setter(d); saveReferenceCache(key, d); }
+      }).catch(() => {});
+    });
+    return () => controller.abort();
   }, []);
   // Los enlaces del megamenú llevan el filtro en la URL, sin perder el catálogo React.
   useEffect(() => {
@@ -59,17 +98,28 @@ export default function Catalog() {
 
   useEffect(() => {
     const controller = new AbortController();
+    const qs = new URLSearchParams({ ...Object.fromEntries(Object.entries(f).filter(([, v]) => v)), page });
+    const key = qs.toString();
+    const cached = readCatalogCache(key);
+    setError('');
+    setSlow(false);
+    if (cached) { setData(cached); setLoading(false); } else { setLoading(true); }
+    // Render en reposo puede tardar en iniciar. La interfaz sigue respondiendo y permite reintentar.
+    const slowTimer = setTimeout(() => { if (!controller.signal.aborted) setSlow(true); }, 7000);
     const timer = setTimeout(() => {
-      setLoading(true);
-      const qs = new URLSearchParams({ ...Object.fromEntries(Object.entries(f).filter(([, v]) => v)), page });
-      api(`/productos?${qs}`, { signal: controller.signal }).then(d => {
-        if (!controller.signal.aborted) { setData(d); setError(''); }
+      api(`/productos?${qs}`, { signal: controller.signal, timeoutMs: 60000 }).then(d => {
+        if (!controller.signal.aborted) {
+          setData(d); setError(''); saveCatalogCache(key, d);
+        }
       }).catch(e => {
         if (!controller.signal.aborted) setError(e.message);
-      }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      }).finally(() => {
+        clearTimeout(slowTimer);
+        if (!controller.signal.aborted) { setLoading(false); setSlow(false); }
+      });
     }, 230);
-    return () => { clearTimeout(timer); controller.abort(); };
-  }, [f, page]);
+    return () => { clearTimeout(timer); clearTimeout(slowTimer); controller.abort(); };
+  }, [f, page, retry]);
 
   const set = key => e => { setF(prev => ({ ...prev, [key]: e.target.value, ...(key === 'tipo' ? { subtipo: '', categoria: '' } : {}), ...(key === 'subtipo' ? { categoria: '' } : {}) })); setPage(1); };
   function selectCategory(tipo, subtipo = '', categoria = '') {
@@ -92,7 +142,7 @@ export default function Catalog() {
       <div className="ks-section-heading"><div><span className="ks-section-label">✦ DESCUBRE TU MUNDO</span><h2>EXPLORA <em>POR CATEGORÍA</em></h2><p>Todo lo que necesitas para seguir coleccionando.</p></div><a className="ks-text-link" href="#catalogo">VER TODO EL CATÁLOGO ↗</a></div>
       <div className="ks-category-toolbar"><span>DESLIZA PARA DESCUBRIR · 01 — 04</span><div><button type="button" aria-label="Categoría anterior" onClick={() => moveCategories(-1)}>←</button><button type="button" aria-label="Categoría siguiente" onClick={() => moveCategories(1)}>→</button></div></div>
       <div className="ks-categories" ref={categoriesRef} onScroll={e => { const rail = e.currentTarget; const card = rail.querySelector('.ks-category'); if (card) setCategoryPage(Math.min(3, Math.max(0, Math.round(rail.scrollLeft / (card.getBoundingClientRect().width + 18))))); }}>{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
-        <span className="ks-category-number">{c.n} / CATEGORÍA</span>
+        <span className="ks-category-number">{c.n} / CATEGORÍA</span><span className="ks-category-icon"><StoreIcon name={c.icono} size={37}/></span>
         <div className="ks-category-art" aria-hidden="true"><img src={c.imagen} alt="" loading="lazy" /></div>
         <span className="ks-category-sub">{c.sub}</span><strong>{c.title}</strong><span className="ks-category-note">{c.note} <b>↗</b></span>
       </button>)}</div><div className="ks-category-dots" aria-label="Posición de categorías">{categoriaItems.map((c, i) => <button key={c.n} type="button" aria-label={`Ir a ${c.title}`} aria-current={categoryPage === i ? 'true' : undefined} onClick={() => { const rail = categoriesRef.current; const item = rail?.children[i]; if (rail && item) rail.scrollTo({ left: item.offsetLeft - rail.offsetLeft, behavior: 'smooth' }); }} className={categoryPage === i ? 'is-active' : ''} />)}</div>
@@ -100,7 +150,7 @@ export default function Catalog() {
 
 
     <section className="ks-wide ks-collections" aria-label="Colecciones destacadas">
-      <div className="ks-collections-top"><span>✦ EXPANSIONES DESTACADAS</span><small>Selecciona una colección para explorar sus cartas y productos.</small></div>
+      <div className="ks-collections-top"><span><StoreIcon name="coleccion" size={28}/> EXPANSIONES DESTACADAS</span><small>Selecciona una colección para explorar sus cartas y productos.</small></div>
       <div className="ks-collections-grid">{colecciones.map(c => <button type="button" key={c.nombre} title={`Ver ${c.nombre}`} onClick={() => {
         const ex = exps.find(x => x.nombre === c.nombre || x.nombre.endsWith(` · ${c.nombre}`));
         setF({ ...VACIO, expansion: ex ? String(ex.id) : '', q: ex ? '' : c.nombre }); setPage(1);
@@ -115,7 +165,7 @@ export default function Catalog() {
 
     <section className="ks-wide ks-catalog ks-section" id="catalogo">
       <div className="ks-section-heading"><div><span className="ks-section-label">✦ ENCUENTRA TU FAVORITA</span><h2>ENCUENTRA TU <em>PRÓXIMO TESORO</em></h2><p>Cartas en español, sobres, Booster Boxes y Elite Trainer Box. Filtra por expansión, rareza o estado.</p></div><span className="ks-results-counter">{loading ? 'Buscando…' : `${data.total} productos encontrados`}</span></div>
-      <div className="ks-catalog-toolbar"><label className="ks-search-box"><span aria-hidden="true">⌕</span><input aria-label="Buscar carta o SKU" placeholder="Busca un Pokémon, carta o SKU…" value={f.q} onChange={set('q')} /></label><button type="button" className="ks-filters-toggle" onClick={() => setFiltersOpen(v => !v)} aria-expanded={filtersOpen}>☷ Filtrar productos <span>{filtersOpen ? '−' : '+'}</span></button><label className="ks-sort"><span>ORDENAR</span><select aria-label="Ordenar productos" value={f.orden} onChange={set('orden')}><option value="">Destacados</option><option value="precio_asc">Precio: menor a mayor</option><option value="precio_desc">Precio: mayor a menor</option><option value="nombre">Nombre</option></select></label></div>
+      <div className="ks-catalog-toolbar"><label className="ks-search-box"><StoreIcon name="buscar" size={33}/><input aria-label="Buscar carta o SKU" placeholder="Busca un Pokémon, carta o SKU…" value={f.q} onChange={set('q')} /></label><button type="button" className="ks-filters-toggle" onClick={() => setFiltersOpen(v => !v)} aria-expanded={filtersOpen}><StoreIcon name="filtros" size={26} /> Filtrar productos <span>{filtersOpen ? '−' : '+'}</span></button><label className="ks-sort"><span>ORDENAR</span><select aria-label="Ordenar productos" value={f.orden} onChange={set('orden')}><option value="">Destacados</option><option value="precio_asc">Precio: menor a mayor</option><option value="precio_desc">Precio: mayor a menor</option><option value="nombre">Nombre</option></select></label></div>
       <div className="ks-pills" role="group" aria-label="Filtrar por categoría"><button type="button" className={!f.tipo ? 'selected' : ''} onClick={() => selectCategory('', '')}>Todos</button><button type="button" className={f.tipo === 'single' ? 'selected' : ''} onClick={() => selectCategory('single')}>Cartas sueltas</button><button type="button" className={f.subtipo === 'sobre' ? 'selected' : ''} onClick={() => selectCategory('sellado','sobre')}>Sobres</button><button type="button" className={f.categoria === 'booster' ? 'selected' : ''} onClick={() => selectCategory('sellado','caja','booster')}>Booster Boxes</button><button type="button" className={f.categoria === 'etb' ? 'selected' : ''} onClick={() => selectCategory('sellado','caja','etb')}>Elite Trainer Box</button><button type="button" className={f.subtipo === 'mazo' && !f.categoria ? 'selected' : ''} onClick={() => selectCategory('sellado','mazo')}>Mazos</button></div>
       {filtersOpen && <div className="ks-filters">
         <FilterSelect label="TIPO" value={f.tipo} onChange={set('tipo')} options={[{v:'single',t:'Cartas sueltas'},{v:'sellado',t:'Producto sellado'}]} />
@@ -127,8 +177,9 @@ export default function Catalog() {
         <FilterSelect label="ESTADO" value={f.estado} onChange={set('estado')} options={meta.estados.map(v => ({v,t:etiqueta(v)}))} />
         <button type="button" className="ks-clear-filters" onClick={() => { setF(VACIO); setPage(1); }}>Limpiar filtros ↺</button>
       </div>}
-      {error && <p className="alert" role="alert">No se pudo cargar el catálogo: {error}</p>}
-      {loading ? <p className="ks-loading">✦ Buscando cartas para tu colección…</p> : data.items.length ? <div className="ks-products-grid">{data.items.map(p => <ProductCard key={p.id} p={p} />)}</div> : <div className="ks-empty"><span>🔍</span><h3>No encontramos cartas con esos filtros.</h3><p>Prueba otra búsqueda o explora todas nuestras categorías.</p><button onClick={() => { setF(VACIO); setPage(1); }}>VER TODOS LOS PRODUCTOS</button></div>}
+      {slow && loading && <div className="ks-slow-notice" role="status">El servidor está tardando en responder (puede estar iniciándose en Render). La página sigue disponible. <button type="button" onClick={() => setRetry(n => n + 1)}>Reintentar consulta</button></div>}
+      {error && <div className="alert" role="alert">No se pudo actualizar el catálogo: {error} <button type="button" onClick={() => setRetry(n => n + 1)}>Reintentar</button></div>}
+      {loading ? <p className="ks-loading" role="status">✦ Buscando cartas para tu colección…</p> : data.items.length ? <div className="ks-products-grid">{data.items.map(p => <ProductCard key={p.id} p={p} />)}</div> : <div className="ks-empty"><span>🔍</span><h3>No encontramos cartas con esos filtros.</h3><p>Prueba otra búsqueda o explora todas nuestras categorías.</p><button onClick={() => { setF(VACIO); setPage(1); }}>VER TODOS LOS PRODUCTOS</button></div>}
       {data.paginas > 1 && <div className="ks-pagination"><button disabled={page <= 1} onClick={() => { setPage(x => x - 1); document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'}); }}>← ANTERIOR</button><span>Página {page} / {data.paginas}</span><button disabled={page >= data.paginas} onClick={() => { setPage(x => x + 1); document.getElementById('catalogo')?.scrollIntoView({behavior:'smooth'}); }}>SIGUIENTE →</button></div>}
     </section>
 
