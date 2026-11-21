@@ -16,7 +16,7 @@ function WhatsAppIcon({ size = 22 }) {
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { count } = useCart();
+  const { count, openCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [notifications, setNotifications] = useState(0);
@@ -59,7 +59,7 @@ export default function Navbar() {
           {user && <Link className="ks-icon-btn ks-hide-sm" to="/deseos" title="Lista de deseos" aria-label="Mis deseos">♡</Link>}
           {user && <Link className="ks-icon-btn ks-hide-sm ks-bell" to="/notificaciones" title="Notificaciones">♧{notifications > 0 && <span className="ks-count">{notifications}</span>}</Link>}
           <Link className="ks-account-link" to={user ? '/mis-pedidos' : '/login'} title={user ? 'Mi cuenta y pedidos' : 'Iniciar sesión'}>♙ <span>{user ? 'Mi cuenta' : 'Ingresar'}</span></Link>
-          <Link className="ks-cart-link" to="/carrito" aria-label={`Carrito, ${count} artículos`} title="Mi carrito"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 3h2l2 12h13l2-9H5"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><b>{count}</b></Link>
+          <button type="button" className="ks-cart-link" onClick={openCart} aria-label={`Abrir carrito, ${count} artículos`} title="Ver mi carrito"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 3h2l2 12h13l2-9H5"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><b>{count}</b></button>
           <button type="button" className="ks-theme" onClick={() => setTheme(t => t === 'oscuro' ? 'claro' : 'oscuro')} aria-label={`Cambiar a modo ${theme === 'oscuro' ? 'claro' : 'oscuro'}`} title={`Modo ${theme === 'oscuro' ? 'claro' : 'oscuro'}`}>{theme === 'oscuro' ? '☀' : '☾'}</button>
           {user && <button className="ks-logout ks-hide-sm" type="button" onClick={() => { logout(); navigate('/'); }}>Salir</button>}
           <button type="button" className="ks-menu-toggle" onClick={() => setMobile(v => !v)} aria-label="Abrir menú" aria-expanded={mobile}>{mobile ? '✕' : '☰'}</button>

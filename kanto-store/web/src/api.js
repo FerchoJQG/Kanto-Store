@@ -1,15 +1,35 @@
 const BASE = import.meta.env.VITE_API_URL || '/api';
 
-export async function api(path, { method = 'GET', body, token } = {}) {
-  const t = token ?? localStorage.getItem('token');
-  const res = await fetch(BASE + path, {
-    method,
-    headers: { 'Content-Type': 'application/json', ...(t ? { Authorization: `Bearer ${t}` } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Error de servidor');
-  return data;
+export async function api(path, { method = 'GET', body, token, signal, timeoutMs } = {}) {
+  const t = token ?? sessionStorage.getItem('kanto_auth_token_tab');
+  const controller = new AbortController();
+  const ms = timeoutMs ?? (method === 'GET' ? 28000 : 45000);
+  let timedOut = false;
+  const stop = () => controller.abort();
+  if (signal?.aborted) controller.abort();
+  signal?.addEventListener('abort', stop, { once: true });
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, ms);
+  try {
+    const res = await fetch(BASE + path, {
+      method,
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json', ...(t ? { Authorization: `Bearer ${t}` } : {}) },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const error = new Error(data.error || `Error del servidor (${res.status})`);
+      error.status = res.status;
+      throw error;
+    }
+    return data;
+  } catch (e) {
+    if (e.name === 'AbortError' && timedOut) throw new Error('El servidor tardó demasiado en responder. Comprueba Render y vuelve a intentar.');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', stop);
+  }
 }
 export const apiBase = BASE;
 

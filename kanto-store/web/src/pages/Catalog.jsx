@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api, etiqueta } from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
+import PaymentShippingCarousel from '../components/PaymentShippingCarousel.jsx';
 
 const VACIO = { q: '', tipo: '', subtipo: '', categoria: '', expansion: '', rareza: '', idioma: '', estado: '', orden: '' };
 const categoriaItems = [
@@ -33,6 +34,15 @@ export default function Catalog() {
   const [error, setError] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [promos, setPromos] = useState([]);
+  const categoriesRef = useRef(null);
+  const [categoryPage, setCategoryPage] = useState(0);
+  const moveCategories = (dir) => {
+    const rail = categoriesRef.current;
+    if (!rail) return;
+    const card = rail.querySelector('.ks-category');
+    const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 18;
+    rail.scrollBy({ left: dir * ((card?.getBoundingClientRect().width || 280) + gap), behavior: 'smooth' });
+  };
 
   useEffect(() => {
     api('/expansiones').then(setExps).catch(() => {});
@@ -48,12 +58,17 @@ export default function Catalog() {
   }, [location.search, location.hash]);
 
   useEffect(() => {
+    const controller = new AbortController();
     const timer = setTimeout(() => {
       setLoading(true);
       const qs = new URLSearchParams({ ...Object.fromEntries(Object.entries(f).filter(([, v]) => v)), page });
-      api(`/productos?${qs}`).then(d => { setData(d); setError(''); }).catch(e => setError(e.message)).finally(() => setLoading(false));
+      api(`/productos?${qs}`, { signal: controller.signal }).then(d => {
+        if (!controller.signal.aborted) { setData(d); setError(''); }
+      }).catch(e => {
+        if (!controller.signal.aborted) setError(e.message);
+      }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     }, 230);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); controller.abort(); };
   }, [f, page]);
 
   const set = key => e => { setF(prev => ({ ...prev, [key]: e.target.value, ...(key === 'tipo' ? { subtipo: '', categoria: '' } : {}), ...(key === 'subtipo' ? { categoria: '' } : {}) })); setPage(1); };
@@ -64,6 +79,7 @@ export default function Catalog() {
 
   return <>
     <HeroCarousel />
+    <PaymentShippingCarousel />
 
     <section className="ks-trust" aria-label="Ventajas de comprar en Kanto Store"><div className="ks-wide ks-trust-grid">
       <div><span className="ks-trust-icon">✦</span><div><strong>COLECCIÓN SIN LÍMITES</strong><small>Descubre nuevos tesoros TCG</small></div></div>
@@ -74,11 +90,12 @@ export default function Catalog() {
 
     <section className="ks-section ks-wide" id="categorias">
       <div className="ks-section-heading"><div><span className="ks-section-label">✦ DESCUBRE TU MUNDO</span><h2>EXPLORA <em>POR CATEGORÍA</em></h2><p>Todo lo que necesitas para seguir coleccionando.</p></div><a className="ks-text-link" href="#catalogo">VER TODO EL CATÁLOGO ↗</a></div>
-      <div className="ks-categories">{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
+      <div className="ks-category-toolbar"><span>DESLIZA PARA DESCUBRIR · 01 — 04</span><div><button type="button" aria-label="Categoría anterior" onClick={() => moveCategories(-1)}>←</button><button type="button" aria-label="Categoría siguiente" onClick={() => moveCategories(1)}>→</button></div></div>
+      <div className="ks-categories" ref={categoriesRef} onScroll={e => { const rail = e.currentTarget; const card = rail.querySelector('.ks-category'); if (card) setCategoryPage(Math.min(3, Math.max(0, Math.round(rail.scrollLeft / (card.getBoundingClientRect().width + 18))))); }}>{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
         <span className="ks-category-number">{c.n} / CATEGORÍA</span>
         <div className="ks-category-art" aria-hidden="true"><img src={c.imagen} alt="" loading="lazy" /></div>
         <span className="ks-category-sub">{c.sub}</span><strong>{c.title}</strong><span className="ks-category-note">{c.note} <b>↗</b></span>
-      </button>)}</div>
+      </button>)}</div><div className="ks-category-dots" aria-label="Posición de categorías">{categoriaItems.map((c, i) => <button key={c.n} type="button" aria-label={`Ir a ${c.title}`} aria-current={categoryPage === i ? 'true' : undefined} onClick={() => { const rail = categoriesRef.current; const item = rail?.children[i]; if (rail && item) rail.scrollTo({ left: item.offsetLeft - rail.offsetLeft, behavior: 'smooth' }); }} className={categoryPage === i ? 'is-active' : ''} />)}</div>
     </section>
 
 

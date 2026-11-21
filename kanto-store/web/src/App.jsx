@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Outlet, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
-import { useAuth } from './context.jsx';
+import CartDrawer from './components/CartDrawer.jsx';
+import { useAuth, useCart } from './context.jsx';
 import Catalog from './pages/Catalog.jsx';
 import Product from './pages/Product.jsx';
 import Cart from './pages/Cart.jsx';
@@ -29,8 +30,10 @@ function Protegida({ roles }) {
 
 export default function App() {
   const { pathname } = useLocation();
+  const { openCart } = useCart();
   return <>
     <Navbar />
+    <CartDrawer />
     <main className={pathname === '/' ? 'ks-home-main' : 'container ks-inner-main'}>
       <Routes>
         <Route path="/" element={<Catalog />} />
@@ -64,6 +67,6 @@ export default function App() {
         <Route path="*" element={<p>Página no encontrada.</p>} />
       </Routes>
     </main>
-    <footer className="ks-footer"><div className="ks-wide ks-footer-main"><div><Link className="ks-footer-logo" to="/">◉ KANTO<span>TCG</span> <small>STORE</small></Link><p>Para quienes disfrutan cada carta, cada apertura y cada colección.</p></div><div><strong>EXPLORA</strong><Link to="/#catalogo">Tienda</Link><Link to="/seguimiento">Mi pedido</Link><Link to="/carrito">Carrito</Link></div><div><strong>ATENCIÓN</strong><a target="_blank" rel="noreferrer" href="https://wa.me/59171179684">💬 WhatsApp · 71179684</a><span>Sucre, Bolivia</span></div></div><div className="ks-wide ks-footer-bottom"><span>© Kanto Store · Proyecto académico SIS324</span><span>Pokémon y sus marcas pertenecen a sus respectivos titulares.</span></div></footer>
+    <footer className="ks-footer"><div className="ks-wide ks-footer-main"><div><Link className="ks-footer-logo" to="/">◉ KANTO<span>TCG</span> <small>STORE</small></Link><p>Para quienes disfrutan cada carta, cada apertura y cada colección.</p></div><div><strong>EXPLORA</strong><Link to="/#catalogo">Tienda</Link><Link to="/seguimiento">Mi pedido</Link><button type="button" className="ks-footer-cart-action" onClick={openCart}>Carrito</button></div><div><strong>ATENCIÓN</strong><a target="_blank" rel="noreferrer" href="https://wa.me/59171179684">💬 WhatsApp · 71179684</a><span>Sucre, Bolivia</span></div></div><div className="ks-wide ks-footer-bottom"><span>© Kanto Store · Proyecto académico SIS324</span><span>Pokémon y sus marcas pertenecen a sus respectivos titulares.</span></div></footer>
   </>;
 }

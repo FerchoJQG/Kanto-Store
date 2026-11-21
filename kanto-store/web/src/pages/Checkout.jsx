@@ -35,19 +35,19 @@ export default function Checkout() {
   };
 
   return (
-    <form className="checkout" onSubmit={enviar}>
-      <h1>Finalizar compra {!user && <small className="muted">(como invitado)</small>}</h1>
+    <form className="checkout ks-checkout" onSubmit={enviar}>
+      <div className="ks-checkout-hero"><span>✦ YA CASI LO TIENES</span><h1>FINALIZAR COMPRA</h1><p>Confirma tus datos, elige cómo recibir tu colección y selecciona un medio de pago. {!user && "Puedes comprar como invitado."}</p></div>
       <div className="two">
         <div className="panel">
-          <h3>Tus datos</h3>
+          <h3><span className="ks-checkout-step">01</span> Tus datos</h3>
           <label>Nombre completo<input required value={f.nombre_cliente} onChange={set('nombre_cliente')} /></label>
           <label>Email<input required type="email" value={f.email} onChange={set('email')} /></label>
           <label>Teléfono<input value={f.telefono} onChange={set('telefono')} /></label>
-          <h3>Entrega</h3>
+          <h3><span className="ks-checkout-step">02</span> Entrega</h3>
           <label className="radio"><input type="radio" checked={f.metodo_entrega === 'envio'} onChange={() => setF({ ...f, metodo_entrega: 'envio' })} /> Envío a domicilio</label>
           <label className="radio"><input type="radio" checked={f.metodo_entrega === 'retiro'} onChange={() => setF({ ...f, metodo_entrega: 'retiro' })} /> Retiro en tienda</label>
           {f.metodo_entrega === 'envio' && <label>Dirección<input required value={f.direccion} onChange={set('direccion')} /></label>}
-          <h3>Pago</h3>
+          <h3><span className="ks-checkout-step">03</span> Pago</h3>
           {['qr', 'transferencia', 'paypal', 'contra_entrega'].filter((m) => m !== 'paypal' || cfg.paypal).map((m) => (
             <label key={m} className="radio"><input type="radio" checked={f.metodo_pago === m} onChange={() => setF({ ...f, metodo_pago: m })} />
               {m === 'qr' ? 'QR bancario' : m === 'paypal' ? 'PayPal (tarjeta o cuenta PayPal)' : etiqueta(m)}</label>
@@ -55,11 +55,11 @@ export default function Checkout() {
           {f.metodo_pago === 'contra_entrega' && f.metodo_entrega === 'envio' && <p className="muted">Pagas en efectivo al recibir; el repartidor registrará el cobro.</p>}
         </div>
         <div className="panel">
-          <h3>Resumen</h3>
+          <h3><span className="ks-checkout-step">✦</span> Resumen del pedido</h3>
           {items.map((i) => <div className="row between" key={i.id}><span>{i.cantidad} × {i.nombre}</span><span>{bs(i.precio * i.cantidad)}</span></div>)}
           <hr /><div className="row between"><strong>Total</strong><strong>{bs(total)}</strong></div>
           {error && <p className="alert">{error}</p>}
-          <button disabled={sending}>{sending ? 'Procesando…' : 'Confirmar pedido'}</button>
+          <button className="ks-checkout-submit" disabled={sending}>{sending ? 'Procesando…' : 'CONFIRMAR PEDIDO ↗'}</button>
         </div>
       </div>
     </form>

@@ -36,7 +36,7 @@ export default function HeroCarousel() {
   const go = delta => setIndex(i => (i + delta + slides.length) % slides.length);
   return <section className="ks-hero" aria-label="Kanto TCG Store">
     <div className="ks-hero-pattern" aria-hidden="true" />
-    <div className="ks-hero-backdrops" aria-hidden="true">{slides.map((s, i) => <div className={`ks-hero-backdrop ${index === i ? 'is-active' : ''}`} key={s.bg}><img src={s.bg} alt="" /></div>)}</div>
+    <div className="ks-hero-backdrops" aria-hidden="true">{slides.map((s, i) => <div className={`ks-hero-backdrop ${index === i ? 'is-active' : ''}`} key={s.bg}><img src={s.bg} alt="" decoding="async" loading={i === index ? "eager" : "lazy"} /></div>)}</div>
     <div className="ks-wide ks-hero-inner">
       <div className="ks-hero-copy">
         <span className="ks-eyebrow"><span className="ks-star">✦</span> TU AVENTURA TCG COMIENZA AQUÍ</span>
@@ -51,7 +51,7 @@ export default function HeroCarousel() {
       <div className="ks-hero-visual" ref={visual} role="region" aria-roledescription="carrusel" aria-label="Cartas destacadas" tabIndex="0" onPointerMove={move} onPointerEnter={() => setPaused(true)} onPointerLeave={reset} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)} onKeyDown={e => { if (e.key === 'ArrowLeft') go(-1); if (e.key === 'ArrowRight') go(1); }}>
         <div className="ks-hero-orbit ks-orbit-a" aria-hidden="true"/><div className="ks-hero-orbit ks-orbit-b" aria-hidden="true"/>
         {slides.map((s, i) => <div className={`ks-hero-slide ${i === index ? 'is-active' : ''}`} key={s.card} aria-hidden={i !== index}>
-          <div className="ks-hero-card-float"><img className="ks-hero-card-image" src={s.card} alt={i === index ? s.name : ''} draggable="false" /></div>
+          <div className="ks-hero-card-float"><img className="ks-hero-card-image" src={s.card} alt={i === index ? s.name : ''} loading={i === index ? "eager" : "lazy"} decoding="async" draggable="false" /></div>
           <div className="ks-hero-card-label"><small>✦ {s.tag}</small><strong>{s.name}</strong><span>{s.line}</span></div>
         </div>)}
         <div className="ks-carousel-controls"><button type="button" aria-label="Carta anterior" onClick={() => go(-1)}>←</button><div className="ks-dots">{slides.map((_, i) => <button key={i} aria-label={`Ver carta ${i + 1}`} aria-current={index === i ? 'true' : undefined} className={index === i ? 'active' : ''} onClick={() => setIndex(i)} />)}</div><button type="button" aria-label="Siguiente carta" onClick={() => go(1)}>→</button></div>
