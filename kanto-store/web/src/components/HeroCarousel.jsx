@@ -6,7 +6,7 @@ import StoreIcon from './StoreIcon.jsx';
 const slides = [
   { bg: '/assets/carrusel/fondo-1.webp', card: '/assets/carrusel/carta-1.png', name: 'MEGA-GOLISOPOD ex', line: 'PODER EN CADA CARTA', tag: 'Carta destacada' },
   { bg: '/assets/carrusel/fondo-2.webp', card: '/assets/carrusel/carta-2.png', name: 'CHARIZARD ex', line: 'ENCIENDE TU COLECCIÓN', tag: 'Favorita de coleccionistas' },
-  { bg: '/assets/carrusel/fondo-3.webp', card: '/assets/carrusel/carta-3.png', name: 'TU PRÓXIMO HALLAZGO', line: 'UNA SORPRESA TE ESPERA', tag: 'Personaliza esta carta' },
+  { bg: '/assets/carrusel/fondo-3.webp', card: '/assets/cartas-es/30th-158.webp', name: 'MEW ex', line: 'UNA SORPRESA TE ESPERA', tag: 'Colección 30.º aniversario' },
   { bg: '/assets/carrusel/oa-darkrai-bg.jpg', card: '/assets/carrusel/oa-darkrai-card.png', name: 'MEGA-DARKRAI ex', line: 'DESCUBRE OSCURIDAD ABSOLUTA', tag: 'Colección destacada' },
 ];
 
@@ -14,34 +14,55 @@ export default function HeroCarousel() {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
+  const [inView, setInView] = useState(true);
+  const sectionRef = useRef(null);
   useEffect(() => {
     const update = () => setHidden(document.hidden);
     document.addEventListener('visibilitychange', update);
     return () => document.removeEventListener('visibilitychange', update);
   }, []);
-  const visual = useRef(null);
   useEffect(() => {
-    if (paused || hidden) return;
-    const timer = setInterval(() => setIndex(i => (i + 1) % slides.length), 6000);
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: '160px 0px' });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+  const visual = useRef(null);
+  const pointerFrame = useRef(null);
+  useEffect(() => {
+    if (paused || hidden || !inView) return;
+    const timer = setInterval(() => setIndex(i => (i + 1) % slides.length), 6500);
     return () => clearInterval(timer);
-  }, [paused, hidden]);
+  }, [paused, hidden, inView]);
+  // Una actualización de GPU por fotograma y solo sobre la carta visible.
+  // Antes los estilos se escribían sobre todo el carrusel en cada evento del ratón.
   const move = e => {
-    if (e.pointerType === 'touch' || !visual.current) return;
-    const bounds = visual.current.getBoundingClientRect();
-    const x = (e.clientX - bounds.left) / bounds.width - .5;
-    const y = (e.clientY - bounds.top) / bounds.height - .5;
-    visual.current.style.setProperty('--pointer-x', `${x * 26}px`);
-    visual.current.style.setProperty('--pointer-y', `${y * 20}px`);
-    visual.current.style.setProperty('--rotate-y', `${x * 16}deg`);
-    visual.current.style.setProperty('--rotate-x', `${y * -12}deg`);
+    if (e.pointerType === 'touch' || !visual.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = visual.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - .5;
+    const y = (e.clientY - rect.top) / rect.height - .5;
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = requestAnimationFrame(() => {
+      pointerFrame.current = null;
+      const el = visual.current?.querySelector('.ks-hero-slide.is-active .ks-hero-card-float');
+      if (!el) return;
+      el.style.setProperty('--pointer-x', `${x * 15}px`);
+      el.style.setProperty('--pointer-y', `${y * 11}px`);
+      el.style.setProperty('--rotate-y', `${x * 9}deg`);
+      el.style.setProperty('--rotate-x', `${y * -7}deg`);
+    });
   };
   const reset = () => {
     setPaused(false);
-    if (!visual.current) return;
-    ['--pointer-x', '--pointer-y', '--rotate-x', '--rotate-y'].forEach(v => visual.current.style.removeProperty(v));
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+    pointerFrame.current = null;
+    visual.current?.querySelectorAll('.ks-hero-card-float').forEach(el => {
+      ['--pointer-x', '--pointer-y', '--rotate-x', '--rotate-y'].forEach(v => el.style.removeProperty(v));
+    });
   };
+  useEffect(() => () => { if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current); }, []);
   const go = delta => setIndex(i => (i + delta + slides.length) % slides.length);
-  return <section className="ks-hero" aria-label="Kanto TCG Store">
+  return <section ref={sectionRef} className="ks-hero" aria-label="Kanto TCG Store">
     <div className="ks-hero-pattern" aria-hidden="true" />
     <div className="ks-hero-backdrops" aria-hidden="true">{slides.map((s, i) => <div className={`ks-hero-backdrop ${index === i ? 'is-active' : ''}`} key={s.bg}><img src={s.bg} alt="" decoding="async" loading={i === index ? "eager" : "lazy"} /></div>)}</div>
     <div className="ks-wide ks-hero-inner">

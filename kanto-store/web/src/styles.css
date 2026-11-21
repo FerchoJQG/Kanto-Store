@@ -546,3 +546,69 @@ a{transition:color .2s}
 .ks-slow-notice{margin:15px 0 22px;padding:13px 17px;border:1px solid #e7ba54;background:#fef4db;color:#433713;border-radius:12px;font-size:13px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 .ks-slow-notice button,.ks-catalog .alert button{cursor:pointer;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;font-weight:800;padding:7px 11px}
 .ks-collections,.ks-guide,.ks-promos{content-visibility:auto;contain-intrinsic-size:auto 520px}
+
+/* KANTO 2026 — Cuatro categorías navegables, cartas en abanico y pagos con iconos reales por función. */
+.ks-categories{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:hidden;scroll-snap-type:none;scroll-behavior:auto;padding:10px 3px 24px;animation:ks-category-enter .27s ease both}
+.ks-categories .ks-category{width:100%;min-width:0;flex:none;scroll-snap-align:none}
+@keyframes ks-category-enter{from{opacity:.7;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.ks-category-dots button{min-width:12px;min-height:12px}
+.ks-payments-item-icon svg{display:block;flex-shrink:0;filter:drop-shadow(0 2px 5px #0003)}
+.ks-payment-paypal .ks-payments-item-icon{background:linear-gradient(135deg,#ecfaff,#a9e1ff);color:#003087}
+.ks-payment-qr .ks-payments-item-icon{background:linear-gradient(135deg,#263e6d,#3c5394);color:#fff}
+.ks-payment-bank .ks-payments-item-icon{background:linear-gradient(135deg,#392d67,#5e459d);color:#e5cbff}
+.ks-payment-cash .ks-payments-item-icon{background:linear-gradient(135deg,#245441,#347d59);color:#b8ffce}
+.ks-payment-delivery .ks-payments-item-icon{background:linear-gradient(135deg,#603b29,#a85b28);color:#ffe1ad}
+.ks-payment-pickup .ks-payments-item-icon{background:linear-gradient(135deg,#22436a,#277ea0);color:#e5f8ff}
+.ks-payment-pin .ks-payments-item-icon{background:linear-gradient(135deg,#513b78,#6f55a3);color:#fff}
+.ks-payment-package .ks-payments-item-icon{background:linear-gradient(135deg,#425b34,#648b46);color:#dcffb9}
+.ks-payments-item-icon{width:52px;height:52px}
+.ks-payments-list{will-change:auto}
+.ks-payments-item{overflow:hidden}
+.ks-payments-item strong{font-size:13px}
+.ks-payments-item div>span{white-space:normal}
+.ks-hero-slide:not(.is-active) .ks-hero-card-image{animation:none}
+.ks-hero-card-float{filter:none;backface-visibility:hidden}
+.ks-hero-card-image{filter:drop-shadow(0 9px 14px #0007);backface-visibility:hidden}
+.ks-hero-backdrop:not(.is-active) img{visibility:hidden}
+.ks-cardfan{--ks-fan-space:1;position:relative;height:410px;max-width:1030px;margin:20px auto 0;isolation:isolate;overflow:hidden;touch-action:pan-y}
+.ks-featured-cards{margin:20px auto 12px;padding:40px 16px 65px;background:radial-gradient(ellipse at 50% 38%,#33397065 0%,#101a2f00 58%),linear-gradient(130deg,#10182b,#172441 55%,#101a2b);border:1px solid #a6b8ec22;border-radius:26px;box-shadow:0 20px 65px #0002;color:#fff;text-align:center;overflow:hidden}
+.ks-featured-heading>span{font-size:10px;font-weight:900;letter-spacing:2px;color:#e3bf67}
+.ks-featured-heading h2{font:900 clamp(38px,5vw,60px)/.98 var(--ks-display);margin:14px auto 8px;color:#fff}
+.ks-featured-heading h2 em{font-style:normal;color:#ffdc42}
+.ks-featured-heading p{font-size:13px;color:#bbc8dd;max-width:660px;margin:0 auto}
+.ks-cardfan-halo{position:absolute;z-index:-1;width:540px;height:320px;max-width:100%;left:50%;top:52%;transform:translate(-50%,-50%);background:radial-gradient(ellipse,#7f5cff5e,#19a8ab2b 42%,transparent 70%);filter:blur(19px);pointer-events:none}
+.ks-cardfan-card{position:absolute;left:50%;top:50%;transform:translate(calc(-50% + var(--card-x)),-50%) rotate(var(--card-rotation)) scale(var(--card-scale));transform-origin:center center;width:clamp(170px,19vw,255px);height:355px;display:grid;place-items:center;background:transparent;border:0;padding:0;border-radius:13px;cursor:pointer;transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .28s,filter .28s;filter:brightness(.83) saturate(.9)}
+.ks-cardfan-card.is-center{filter:brightness(1) drop-shadow(0 14px 18px #000a)}
+.ks-cardfan-card:hover{filter:brightness(1.06) drop-shadow(0 12px 24px #0009)}
+.ks-cardfan-card img{display:block;height:100%;width:100%;object-fit:contain;user-select:none}
+.ks-cardfan-card:focus-visible{outline:3px solid #ffdc42;outline-offset:3px}
+.ks-cardfan-controls{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:0}
+.ks-cardfan-controls button{width:40px;height:40px;border-radius:50%;border:1px solid #9ebaff88;background:#273b68;color:white;font-size:21px;padding:0;display:grid;place-items:center}
+.ks-cardfan-controls button:hover{background:#ffdc42;color:#14223c}
+.ks-cardfan-controls span{font-size:12px;color:#c9d6ef;font-weight:800;min-width:70px}
+.ks-cardfan-details{display:flex;align-items:center;flex-direction:column;gap:6px;margin-top:12px}
+.ks-cardfan-details strong{font:900 25px var(--ks-display)}
+.ks-cardfan-details span{font-size:12px;color:#aabadd}
+.ks-cardfan-details a{color:#ffd63f!important;font-size:12px;font-weight:900;padding:11px 14px;text-decoration:underline;text-underline-offset:4px}
+/* Reducir efectos caros: pintar solamente la carta activa y hacer pausas cuando el usuario lo solicite. */
+@media (max-width:900px){
+ .ks-categories{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ks-categories .ks-category:nth-child(n+3){display:none}
+ .ks-cardfan{height:350px}
+ .ks-cardfan-card{height:295px}
+ .ks-payments-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ks-payments-item:nth-child(n+3){display:none}
+}
+@media (max-width:580px){
+ .ks-categories{grid-template-columns:minmax(0,1fr);max-width:440px;margin:auto}
+ .ks-categories .ks-category:nth-child(n+2){display:none}
+ .ks-category{min-height:330px!important}
+ .ks-cardfan{height:275px;margin:10px -8px 0}
+ .ks-cardfan-card{width:170px;height:240px}
+ .ks-featured-cards{padding:30px 11px 34px;margin-top:10px;border-radius:18px}
+ .ks-payments-list{grid-template-columns:minmax(0,1fr)}
+ .ks-payments-item:nth-child(n+2){display:none}
+ .ks-payments-heading strong{font-size:18px}
+ .ks-cardfan-details strong{font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){.ks-categories{animation:none}.ks-cardfan-card{transition:none!important}.ks-payments-list{animation:none!important}.ks-cardfan-halo{filter:none}}

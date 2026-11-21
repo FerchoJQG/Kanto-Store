@@ -4,6 +4,7 @@ import { api, etiqueta } from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 import PaymentShippingCarousel from '../components/PaymentShippingCarousel.jsx';
+import FeaturedCards from '../components/FeaturedCards.jsx';
 import StoreIcon from '../components/StoreIcon.jsx';
 
 const VACIO = { q: '', tipo: '', subtipo: '', categoria: '', expansion: '', rareza: '', idioma: '', estado: '', orden: '' };
@@ -61,15 +62,11 @@ export default function Catalog() {
   const [error, setError] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [promos, setPromos] = useState([]);
-  const categoriesRef = useRef(null);
   const [categoryPage, setCategoryPage] = useState(0);
-  const moveCategories = (dir) => {
-    const rail = categoriesRef.current;
-    if (!rail) return;
-    const card = rail.querySelector('.ks-category');
-    const gap = Number.parseFloat(getComputedStyle(rail).columnGap) || 18;
-    rail.scrollBy({ left: dir * ((card?.getBoundingClientRect().width || 280) + gap), behavior: 'smooth' });
-  };
+  const categoryTouch = useRef(null);
+  // Carrusel circular: cuatro posiciones reales, no limitado por scrollWidth.
+  const moveCategories = (dir) => setCategoryPage(i => (i + dir + categoriaItems.length) % categoriaItems.length);
+  const visiblesCategorias = Array.from({ length: 3 }, (_, i) => categoriaItems[(categoryPage + i) % categoriaItems.length]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -140,14 +137,19 @@ export default function Catalog() {
 
     <section className="ks-section ks-wide" id="categorias">
       <div className="ks-section-heading"><div><span className="ks-section-label">✦ DESCUBRE TU MUNDO</span><h2>EXPLORA <em>POR CATEGORÍA</em></h2><p>Todo lo que necesitas para seguir coleccionando.</p></div><a className="ks-text-link" href="#catalogo">VER TODO EL CATÁLOGO ↗</a></div>
-      <div className="ks-category-toolbar"><span>DESLIZA PARA DESCUBRIR · 01 — 04</span><div><button type="button" aria-label="Categoría anterior" onClick={() => moveCategories(-1)}>←</button><button type="button" aria-label="Categoría siguiente" onClick={() => moveCategories(1)}>→</button></div></div>
-      <div className="ks-categories" ref={categoriesRef} onScroll={e => { const rail = e.currentTarget; const card = rail.querySelector('.ks-category'); if (card) setCategoryPage(Math.min(3, Math.max(0, Math.round(rail.scrollLeft / (card.getBoundingClientRect().width + 18))))); }}>{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
-        <span className="ks-category-number">{c.n} / CATEGORÍA</span><span className="ks-category-icon"><StoreIcon name={c.icono} size={37}/></span>
-        <div className="ks-category-art" aria-hidden="true"><img src={c.imagen} alt="" loading="lazy" /></div>
-        <span className="ks-category-sub">{c.sub}</span><strong>{c.title}</strong><span className="ks-category-note">{c.note} <b>↗</b></span>
-      </button>)}</div><div className="ks-category-dots" aria-label="Posición de categorías">{categoriaItems.map((c, i) => <button key={c.n} type="button" aria-label={`Ir a ${c.title}`} aria-current={categoryPage === i ? 'true' : undefined} onClick={() => { const rail = categoriesRef.current; const item = rail?.children[i]; if (rail && item) rail.scrollTo({ left: item.offsetLeft - rail.offsetLeft, behavior: 'smooth' }); }} className={categoryPage === i ? 'is-active' : ''} />)}</div>
+      <div className="ks-category-toolbar"><span>DESLIZA PARA DESCUBRIR · {String(categoryPage + 1).padStart(2, '0')} — 04</span><div><button type="button" aria-label="Categoría anterior" onClick={() => moveCategories(-1)}>←</button><button type="button" aria-label="Categoría siguiente" onClick={() => moveCategories(1)}>→</button></div></div>
+      <div className="ks-categories" key={categoryPage} role="region" aria-roledescription="carrusel" aria-label="Categorías de Kanto Store" tabIndex="0" onKeyDown={e => { if (e.key==='ArrowLeft') moveCategories(-1); if (e.key==='ArrowRight') moveCategories(1); }} onTouchStart={e => { categoryTouch.current = e.touches[0]?.clientX ?? null; }} onTouchEnd={e => { if (categoryTouch.current === null) return; const diff=e.changedTouches[0].clientX-categoryTouch.current; if (Math.abs(diff)>35) moveCategories(diff<0?1:-1); categoryTouch.current=null; }}>
+        {visiblesCategorias.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
+          <span className="ks-category-number">{c.n} / CATEGORÍA</span><span className="ks-category-icon"><StoreIcon name={c.icono} size={37}/></span>
+          <div className="ks-category-art" aria-hidden="true"><img src={c.imagen} alt="" loading="lazy" decoding="async" /></div>
+          <span className="ks-category-sub">{c.sub}</span><strong>{c.title}</strong><span className="ks-category-note">{c.note} <b>↗</b></span>
+        </button>)}
+      </div>
+      <div className="ks-category-dots" role="group" aria-label="Elegir categoría">{categoriaItems.map((c, i) => <button key={c.n} type="button" aria-label={`Mostrar ${c.title}`} aria-current={categoryPage===i?'true':undefined} onClick={() => setCategoryPage(i)} className={categoryPage===i?'is-active':''}/>)}</div>
     </section>
 
+
+    <FeaturedCards />
 
     <section className="ks-wide ks-collections" aria-label="Colecciones destacadas">
       <div className="ks-collections-top"><span><StoreIcon name="coleccion" size={28}/> EXPANSIONES DESTACADAS</span><small>Selecciona una colección para explorar sus cartas y productos.</small></div>
