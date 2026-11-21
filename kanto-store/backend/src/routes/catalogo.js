@@ -7,13 +7,16 @@ const SELECT = `SELECT p.*, e.nombre AS expansion FROM productos p
 
 // RF02 — catálogo con filtros (singles y sellados)
 router.get('/productos', wrap(async (req, res) => {
-  const { tipo, expansion, rareza, idioma, estado, q, subtipo, min, max, orden } = req.query;
+  const { tipo, expansion, rareza, idioma, estado, q, subtipo, categoria, min, max, orden } = req.query;
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(60, parseInt(req.query.limit) || 24);
   const where = ['p.activo = 1'];
   const params = [];
   if (tipo) { where.push('p.tipo = ?'); params.push(tipo); }
   if (subtipo) { where.push('p.subtipo_sellado = ?'); params.push(subtipo); }
+  // Diferencia Booster Boxes y ETB sin alterar el ENUM de TiDB ni el flujo de ventas.
+  if (categoria === 'booster') where.push("p.tipo = 'sellado' AND p.subtipo_sellado = 'caja' AND p.nombre LIKE 'Booster Box%'");
+  if (categoria === 'etb') where.push("p.tipo = 'sellado' AND p.subtipo_sellado = 'caja' AND (p.nombre LIKE 'Elite Trainer Box%' OR p.nombre LIKE 'Caja de entrenador%')");
   if (expansion) { where.push('p.expansion_id = ?'); params.push(expansion); }
   if (rareza) { where.push('p.rareza = ?'); params.push(rareza); }
   if (idioma) { where.push('p.idioma = ?'); params.push(idioma); }
