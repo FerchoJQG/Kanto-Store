@@ -22,7 +22,7 @@ export default function Product() {
       <div className="detail-img"><Img src={p.imagen_url} alt={p.nombre} /></div>
       <div>
         <h1>{p.nombre}</h1>
-        <p className="price big">{bs(p.precio)}</p>
+        <p className="price big">{Number(p.precio) > 0 ? bs(p.precio) : 'Precio pendiente de configuración'}</p>
         <table className="spec"><tbody>
           {fila('Expansión', p.expansion)}
           {fila('N.º de colección', p.numero_coleccion)}
@@ -35,7 +35,7 @@ export default function Product() {
         {p.descripcion && <p>{p.descripcion}</p>}
         <div className="row gap">
           {p.stock > 0 && <input type="number" min="1" max={p.stock} value={qty} onChange={(e) => setQty(Math.max(1, Math.min(p.stock, +e.target.value || 1)))} style={{ width: 80 }} />}
-          <button disabled={p.stock < 1} onClick={() => add(p, qty)}>Agregar al carrito</button>
+          <button disabled={p.stock < 1 || Number(p.precio) <= 0} onClick={() => add(p, qty)}>Agregar al carrito</button>
           {user
             ? <button className={`ghost ${deseado ? 'on' : ''}`} onClick={() => toggleWish(p.id)}>{deseado ? '♥ En tu lista' : p.stock < 1 ? '♡ Avisarme cuando haya' : '♡ A mi lista de deseos'}</button>
             : p.stock < 1 && <span className="muted">Inicia sesión para recibir un aviso cuando esté disponible.</span>}

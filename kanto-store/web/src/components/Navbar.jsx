@@ -6,7 +6,8 @@ import { api } from '../api.js';
 const categories = [
   ['Cartas sueltas', 'Cartas individuales para tu colección', '/?tipo=single#catalogo', '🃏'],
   ['Sobres', 'La emoción de cada apertura', '/?tipo=sellado&subtipo=sobre#catalogo', '✨'],
-  ['Booster boxes / Cajas', 'Más sobres y nuevas posibilidades', '/?tipo=sellado&subtipo=caja#catalogo', '📦'],
+  ['Booster Boxes', 'Cajas completas de sobres', '/?tipo=sellado&subtipo=caja&categoria=booster#catalogo', '📦'],
+  ['Elite Trainer Box', 'Cajas para entrenadores', '/?tipo=sellado&subtipo=caja&categoria=etb#catalogo', '🎁'],
   ['Mazos', 'Todo para empezar a jugar', '/?tipo=sellado&subtipo=mazo#catalogo', '⚡'],
 ];
 function WhatsAppIcon({ size = 22 }) {

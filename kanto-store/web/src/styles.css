@@ -338,3 +338,20 @@ a{transition:color .2s}
 
 .ks-mobile-exit{display:none}
 @media(max-width:950px){.ks-mobile-exit{display:block!important;text-align:left;width:100%;background:#293854;color:#ffdadb;border:1px solid #536081;margin-top:8px;padding:11px 14px;font-size:14px}}
+
+/* Integración visual del catálogo del ZIP adjunto (sin importar código SQLite ni Excel). */
+.ks-category .ks-category-art img{max-width:100%;max-height:245px;width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 15px 14px #0008);transform:rotate(-6deg);transition:transform .3s ease,filter .3s}
+.ks-category:hover .ks-category-art img{transform:translateY(-8px) rotate(-1deg) scale(1.05);filter:drop-shadow(0 20px 16px #0009)}
+.ks-collections{padding:10px 0 30px}
+.ks-collections-top{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ks-collections-top>span{font-size:11px;font-weight:900;color:var(--blue);letter-spacing:1.6px}
+.ks-collections-top small{font-size:12px;color:var(--muted)}
+.ks-collections-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.ks-collections-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--ink);transition:transform .25s,border-color .25s,box-shadow .25s}
+.ks-collections-grid button:hover{transform:translateY(-4px);border-color:var(--blue);box-shadow:0 9px 20px #0002}
+.ks-collections-grid img{width:80%;height:62px;object-fit:contain}
+.ks-collections-grid button span{font-size:11px;font-weight:900;letter-spacing:.2px}
+.ks-price-pending{font:800 17px var(--ks-font);color:var(--muted)}
+@media(max-width:800px){.ks-collections-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ks-collections-top{flex-direction:column;align-items:flex-start;gap:3px}}
+@media(max-width:520px){.ks-collections-grid img{height:48px}.ks-collections-grid button{min-height:102px}}
+@media(prefers-reduced-motion:reduce){.ks-category .ks-category-art img,.ks-collections-grid button{transition:none!important}}

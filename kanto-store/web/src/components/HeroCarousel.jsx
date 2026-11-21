@@ -6,6 +6,7 @@ const slides = [
   { bg: '/assets/carrusel/fondo-1.webp', card: '/assets/carrusel/carta-1.png', name: 'MEGA-GOLISOPOD ex', line: 'PODER EN CADA CARTA', tag: 'Carta destacada' },
   { bg: '/assets/carrusel/fondo-2.webp', card: '/assets/carrusel/carta-2.png', name: 'CHARIZARD ex', line: 'ENCIENDE TU COLECCIÓN', tag: 'Favorita de coleccionistas' },
   { bg: '/assets/carrusel/fondo-3.webp', card: '/assets/carrusel/carta-3.png', name: 'TU PRÓXIMO HALLAZGO', line: 'UNA SORPRESA TE ESPERA', tag: 'Personaliza esta carta' },
+  { bg: '/assets/carrusel/oa-darkrai-bg.jpg', card: '/assets/carrusel/oa-darkrai-card.png', name: 'MEGA-DARKRAI ex', line: 'DESCUBRE OSCURIDAD ABSOLUTA', tag: 'Colección destacada' },
 ];
 
 export default function HeroCarousel() {

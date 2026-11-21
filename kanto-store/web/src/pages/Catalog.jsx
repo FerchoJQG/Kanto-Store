@@ -4,12 +4,18 @@ import { api, etiqueta } from '../api.js';
 import ProductCard from '../components/ProductCard.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 
-const VACIO = { q: '', tipo: '', subtipo: '', expansion: '', rareza: '', idioma: '', estado: '', orden: '' };
+const VACIO = { q: '', tipo: '', subtipo: '', categoria: '', expansion: '', rareza: '', idioma: '', estado: '', orden: '' };
 const categoriaItems = [
-  { n: '01', title: 'CARTAS', sub: 'SINGLES', note: 'Tu Pokémon favorito te espera', tipo: 'single', subtipo: '', art: 'card', icon: '🃏' },
-  { n: '02', title: 'SOBRES', sub: 'BOOSTER PACKS', note: 'Cada sobre, una sorpresa', tipo: 'sellado', subtipo: 'sobre', art: 'pack', icon: '✨' },
-  { n: '03', title: 'CAJAS', sub: 'BOOSTER BOX / ETB', note: 'Amplía tu colección', tipo: 'sellado', subtipo: 'caja', art: 'box', icon: '📦' },
-  { n: '04', title: 'MAZOS', sub: 'DECKS', note: 'Prepara tu próxima partida', tipo: 'sellado', subtipo: 'mazo', art: 'deck', icon: '⚡' },
+  { n: '01', title: 'CARTAS', sub: 'CARTAS SUELTAS', note: 'Cartas en español de distintas expansiones', tipo: 'single', subtipo: '', categoria: '', art: 'card', imagen: '/assets/categories/carta-darkrai-ex.png' },
+  { n: '02', title: 'SOBRES', sub: 'BOOSTER PACKS', note: 'Sobres para descubrir nuevas cartas', tipo: 'sellado', subtipo: 'sobre', categoria: '', art: 'pack', imagen: '/assets/categories/sobre-dominio-delta.webp' },
+  { n: '03', title: 'BOOSTER BOXES', sub: 'CAJAS DE SOBRES', note: 'Cajas completas de tus expansiones', tipo: 'sellado', subtipo: 'caja', categoria: 'booster', art: 'box', imagen: '/assets/categories/booster-oscuridad-absoluta.webp' },
+  { n: '04', title: 'ELITE TRAINER BOX', sub: 'ETB', note: 'Colecciones para entrenadores', tipo: 'sellado', subtipo: 'caja', categoria: 'etb', art: 'deck', imagen: '/assets/categories/etb-dominio-delta.webp' },
+];
+const colecciones = [
+  { nombre: 'Dominio Delta', logo: '/assets/collection-logos/me06-logo.png' },
+  { nombre: 'Oscuridad Absoluta', logo: '/assets/collection-logos/oa-logo.png' },
+  { nombre: 'Llamas Obsidianas', logo: '/assets/collection-logos/obf-logo.png' },
+  { nombre: 'Escarlata y Púrpura', logo: '/assets/collection-logos/sv01-logo.png' },
 ];
 
 function FilterSelect({ label, value, options, onChange }) {
@@ -36,7 +42,7 @@ export default function Catalog() {
   // Los enlaces del megamenú llevan el filtro en la URL, sin perder el catálogo React.
   useEffect(() => {
     const q = new URLSearchParams(location.search);
-    setF(prev => ({ ...prev, tipo: q.get('tipo') || '', subtipo: q.get('subtipo') || '' }));
+    setF(prev => ({ ...prev, tipo: q.get('tipo') || '', subtipo: q.get('subtipo') || '', categoria: q.get('categoria') || '' }));
     setPage(1);
     if (location.hash) requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }));
   }, [location.search, location.hash]);
@@ -50,9 +56,9 @@ export default function Catalog() {
     return () => clearTimeout(timer);
   }, [f, page]);
 
-  const set = key => e => { setF(prev => ({ ...prev, [key]: e.target.value, ...(key === 'tipo' ? { subtipo: '' } : {}) })); setPage(1); };
-  function selectCategory(tipo, subtipo = '') {
-    setF(prev => ({ ...prev, tipo, subtipo })); setPage(1);
+  const set = key => e => { setF(prev => ({ ...prev, [key]: e.target.value, ...(key === 'tipo' ? { subtipo: '', categoria: '' } : {}), ...(key === 'subtipo' ? { categoria: '' } : {}) })); setPage(1); };
+  function selectCategory(tipo, subtipo = '', categoria = '') {
+    setF(prev => ({ ...prev, tipo, subtipo, categoria, expansion: '' })); setPage(1);
     document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -68,11 +74,21 @@ export default function Catalog() {
 
     <section className="ks-section ks-wide" id="categorias">
       <div className="ks-section-heading"><div><span className="ks-section-label">✦ DESCUBRE TU MUNDO</span><h2>EXPLORA <em>POR CATEGORÍA</em></h2><p>Todo lo que necesitas para seguir coleccionando.</p></div><a className="ks-text-link" href="#catalogo">VER TODO EL CATÁLOGO ↗</a></div>
-      <div className="ks-categories">{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo)}>
+      <div className="ks-categories">{categoriaItems.map(c => <button type="button" className={`ks-category ks-category-${c.art}`} key={c.n} onClick={() => selectCategory(c.tipo, c.subtipo, c.categoria)}>
         <span className="ks-category-number">{c.n} / CATEGORÍA</span>
-        <div className="ks-category-art" aria-hidden="true">{c.art === 'card' ? <img src="/assets/carrusel/carta-1.png" alt="" /> : c.art === 'pack' ? <span className="ks-faux-pack"><small>⚡ KANTO</small><b>TCG</b><em>BOOSTER</em></span> : c.art === 'box' ? <span className="ks-faux-box"><small>COLLECTOR</small><b>TCG</b><em>BOOSTER BOX</em></span> : <span className="ks-faux-deck"><b>★</b><em>TRAINER DECK</em></span>}</div>
+        <div className="ks-category-art" aria-hidden="true"><img src={c.imagen} alt="" loading="lazy" /></div>
         <span className="ks-category-sub">{c.sub}</span><strong>{c.title}</strong><span className="ks-category-note">{c.note} <b>↗</b></span>
       </button>)}</div>
+    </section>
+
+
+    <section className="ks-wide ks-collections" aria-label="Colecciones destacadas">
+      <div className="ks-collections-top"><span>✦ EXPANSIONES DESTACADAS</span><small>Selecciona una colección para explorar sus cartas y productos.</small></div>
+      <div className="ks-collections-grid">{colecciones.map(c => <button type="button" key={c.nombre} title={`Ver ${c.nombre}`} onClick={() => {
+        const ex = exps.find(x => x.nombre === c.nombre || x.nombre.endsWith(` · ${c.nombre}`));
+        setF({ ...VACIO, expansion: ex ? String(ex.id) : '', q: ex ? '' : c.nombre }); setPage(1);
+        document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
+      }}><img src={c.logo} alt={c.nombre} loading="lazy"/><span>{c.nombre} ↗</span></button>)}</div>
     </section>
 
     {promos.length > 0 && <section className="ks-wide ks-section ks-promos" aria-label="Promociones de la tienda">
@@ -81,12 +97,13 @@ export default function Catalog() {
     </section>}
 
     <section className="ks-wide ks-catalog ks-section" id="catalogo">
-      <div className="ks-section-heading"><div><span className="ks-section-label">✦ ENCUENTRA TU FAVORITA</span><h2>ELIGE TU <em>PRÓXIMA CARTA</em></h2><p>Busca por nombre, expansión, rareza y estado.</p></div><span className="ks-results-counter">{loading ? 'Buscando…' : `${data.total} productos encontrados`}</span></div>
+      <div className="ks-section-heading"><div><span className="ks-section-label">✦ ENCUENTRA TU FAVORITA</span><h2>ENCUENTRA TU <em>PRÓXIMO TESORO</em></h2><p>Cartas en español, sobres, Booster Boxes y Elite Trainer Box. Filtra por expansión, rareza o estado.</p></div><span className="ks-results-counter">{loading ? 'Buscando…' : `${data.total} productos encontrados`}</span></div>
       <div className="ks-catalog-toolbar"><label className="ks-search-box"><span aria-hidden="true">⌕</span><input aria-label="Buscar carta o SKU" placeholder="Busca un Pokémon, carta o SKU…" value={f.q} onChange={set('q')} /></label><button type="button" className="ks-filters-toggle" onClick={() => setFiltersOpen(v => !v)} aria-expanded={filtersOpen}>☷ Filtrar productos <span>{filtersOpen ? '−' : '+'}</span></button><label className="ks-sort"><span>ORDENAR</span><select aria-label="Ordenar productos" value={f.orden} onChange={set('orden')}><option value="">Destacados</option><option value="precio_asc">Precio: menor a mayor</option><option value="precio_desc">Precio: mayor a menor</option><option value="nombre">Nombre</option></select></label></div>
-      <div className="ks-pills" role="group" aria-label="Filtrar por categoría"><button type="button" className={!f.tipo ? 'selected' : ''} onClick={() => selectCategory('', '')}>Todos</button><button type="button" className={f.tipo === 'single' ? 'selected' : ''} onClick={() => selectCategory('single')}>Cartas sueltas</button><button type="button" className={f.subtipo === 'sobre' ? 'selected' : ''} onClick={() => selectCategory('sellado','sobre')}>Sobres</button><button type="button" className={f.subtipo === 'caja' ? 'selected' : ''} onClick={() => selectCategory('sellado','caja')}>Cajas</button><button type="button" className={f.subtipo === 'mazo' ? 'selected' : ''} onClick={() => selectCategory('sellado','mazo')}>Mazos</button></div>
+      <div className="ks-pills" role="group" aria-label="Filtrar por categoría"><button type="button" className={!f.tipo ? 'selected' : ''} onClick={() => selectCategory('', '')}>Todos</button><button type="button" className={f.tipo === 'single' ? 'selected' : ''} onClick={() => selectCategory('single')}>Cartas sueltas</button><button type="button" className={f.subtipo === 'sobre' ? 'selected' : ''} onClick={() => selectCategory('sellado','sobre')}>Sobres</button><button type="button" className={f.categoria === 'booster' ? 'selected' : ''} onClick={() => selectCategory('sellado','caja','booster')}>Booster Boxes</button><button type="button" className={f.categoria === 'etb' ? 'selected' : ''} onClick={() => selectCategory('sellado','caja','etb')}>Elite Trainer Box</button><button type="button" className={f.subtipo === 'mazo' && !f.categoria ? 'selected' : ''} onClick={() => selectCategory('sellado','mazo')}>Mazos</button></div>
       {filtersOpen && <div className="ks-filters">
         <FilterSelect label="TIPO" value={f.tipo} onChange={set('tipo')} options={[{v:'single',t:'Cartas sueltas'},{v:'sellado',t:'Producto sellado'}]} />
         {f.tipo === 'sellado' && <FilterSelect label="SELLADO" value={f.subtipo} onChange={set('subtipo')} options={[{v:'sobre',t:'Sobres'},{v:'caja',t:'Cajas'},{v:'mazo',t:'Mazos'}]} />}
+        {f.subtipo === 'caja' && <FilterSelect label="TIPO DE CAJA" value={f.categoria} onChange={set('categoria')} options={[{v:'booster',t:'Booster Boxes'},{v:'etb',t:'Elite Trainer Box'}]} />}
         <FilterSelect label="EXPANSIÓN" value={f.expansion} onChange={set('expansion')} options={exps.map(x => ({v:x.id,t:x.nombre}))} />
         <FilterSelect label="RAREZA" value={f.rareza} onChange={set('rareza')} options={meta.rarezas.map(v => ({v,t:etiqueta(v)}))} />
         <FilterSelect label="IDIOMA" value={f.idioma} onChange={set('idioma')} options={meta.idiomas.map(v => ({v,t:etiqueta(v)}))} />
