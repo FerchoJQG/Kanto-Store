@@ -62,7 +62,7 @@ export default function HeroCarousel() {
   };
   useEffect(() => () => { if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current); }, []);
   const go = delta => setIndex(i => (i + delta + slides.length) % slides.length);
-  return <section ref={sectionRef} className="ks-hero" aria-label="Kanto TCG Store">
+  return <section ref={sectionRef} className={`ks-hero ${!inView || hidden ? "ks-hero-offscreen" : ""}`} aria-label="Kanto TCG Store">
     <div className="ks-hero-pattern" aria-hidden="true" />
     <div className="ks-hero-backdrops" aria-hidden="true">{slides.map((s, i) => <div className={`ks-hero-backdrop ${index === i ? 'is-active' : ''}`} key={s.bg}><img src={s.bg} alt="" decoding="async" loading={i === index ? "eager" : "lazy"} /></div>)}</div>
     <div className="ks-wide ks-hero-inner">

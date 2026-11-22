@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Todas las imágenes existen en public/assets; no hay placeholders ni productos inventados.
+// Imágenes del catálogo publicado; ninguna carta depende de una imagen de ejemplo.
 const cards = [
   { name: 'Mega-Golisopod ex', set: 'Dominio Delta', image: '/assets/carrusel/mega-golisopod-ex-limpia.png' },
   { name: 'Mega-Chandelure ex', set: 'Oscuridad Absoluta', image: '/assets/carrusel/oa-chandelure-card.png' },
@@ -9,26 +9,112 @@ const cards = [
   { name: 'Raikou ex', set: 'Dominio Delta', image: '/assets/cartas-es/me06-121.webp' },
   { name: 'Mega-Malamar ex', set: 'Dominio Delta', image: '/assets/cartas-es/me06-123.webp' },
 ];
+
+const NEXT_MS = 4800;
+
 export default function FeaturedCards() {
   const [active, setActive] = useState(2);
+  const [playing, setPlaying] = useState(true);
+  const [visible, setVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
+  const [inView, setInView] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const sectionRef = useRef(null);
   const touchStart = useRef(null);
-  const move = (d) => setActive(i => (i + d + cards.length) % cards.length);
-  // Cuando la pestaña se oculta, este carrusel no ejecuta animaciones ni temporizadores.
-  const offset = (i) => {
+
+  // No usar intervalos ni transformar cartas cuando el bloque está fuera de pantalla.
+  useEffect(() => {
+    const onVisibility = () => setVisible(!document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotion = () => setReduceMotion(media.matches);
+    onMotion();
+    media.addEventListener?.('change', onMotion);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      media.removeEventListener?.('change', onMotion);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) { setInView(true); return; }
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.05 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!playing || !visible || !inView || reduceMotion) return;
+    const timer = window.setInterval(() => setActive(i => (i + 1) % cards.length), NEXT_MS);
+    return () => window.clearInterval(timer);
+  }, [playing, visible, inView, reduceMotion]);
+
+  const move = delta => setActive(i => (i + delta + cards.length) % cards.length);
+  const offset = i => {
     let d = (i - active + cards.length) % cards.length;
     if (d > cards.length / 2) d -= cards.length;
     return d;
   };
-  return <section className="ks-featured-cards ks-wide" aria-label="Cartas destacadas con navegación">
-    <div className="ks-featured-heading"><span>✦ SELECCIÓN KANTO</span><h2>CARTAS QUE <em>ROBAN MIRADAS.</em></h2><p>Explora nuestras cartas destacadas. Avanza, retrocede o elige la que quieres ver.</p></div>
-    <div className="ks-cardfan" role="region" aria-roledescription="carrusel" aria-label="Cartas Pokémon destacadas" tabIndex="0" onKeyDown={e => { if (e.key === 'ArrowLeft') move(-1); if (e.key === 'ArrowRight') move(1); }} onTouchStart={e => { touchStart.current = e.touches[0]?.clientX ?? null; }} onTouchEnd={e => { if (touchStart.current === null) return; const dx = e.changedTouches[0].clientX - touchStart.current; if (Math.abs(dx)>35) move(dx<0?1:-1); touchStart.current = null; }}>
+
+  return <section ref={sectionRef} className="ks-featured-cards ks-wide" aria-label="Cartas Pokémon destacadas">
+    <div className="ks-featured-heading">
+      <span>✦ SELECCIÓN KANTO</span>
+      <h2>CARTAS QUE <em>ROBAN MIRADAS.</em></h2>
+      <p>Las cartas avanzan automáticamente. También puedes usar las flechas o seleccionar una carta.</p>
+    </div>
+    <div
+      className="ks-cardfan"
+      role="region"
+      aria-roledescription="carrusel"
+      aria-label="Carrusel de seis cartas Pokémon"
+      tabIndex="0"
+      onKeyDown={e => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); move(-1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); move(1); }
+      }}
+      onTouchStart={e => { touchStart.current = e.touches[0]?.clientX ?? null; }}
+      onTouchEnd={e => {
+        if (touchStart.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStart.current;
+        if (Math.abs(dx) > 35) move(dx < 0 ? 1 : -1);
+        touchStart.current = null;
+      }}
+    >
       <div className="ks-cardfan-halo" aria-hidden="true" />
       {cards.map((c, i) => {
         const d = offset(i);
-        return <button key={c.image} type="button" className={`ks-cardfan-card ${d === 0 ? 'is-center' : ''}`} aria-hidden={Math.abs(d)>2} tabIndex={Math.abs(d)>2?-1:0} aria-label={`Mostrar carta ${c.name}`} aria-current={d===0?'true':undefined} onClick={() => setActive(i)} style={{ '--card-x': `${d * 70}%`, '--card-rotation': `${d * -10}deg`, '--card-scale': Math.max(.64, 1 - Math.abs(d)*.15), zIndex: 8-Math.abs(d), opacity: Math.abs(d) > 2 ? 0 : 1, pointerEvents: Math.abs(d)>2?'none':'auto' }}><img src={c.image} alt={c.name} loading={Math.abs(d)>1?'lazy':'eager'} decoding="async" draggable="false"/></button>;
+        const show = Math.abs(d) <= 2;
+        return <button
+          key={c.image}
+          type="button"
+          className={`ks-cardfan-card ${d === 0 ? 'is-center' : ''}`}
+          aria-hidden={!show}
+          tabIndex={show ? 0 : -1}
+          aria-label={`Mostrar ${c.name}`}
+          aria-current={d === 0 ? 'true' : undefined}
+          onClick={() => setActive(i)}
+          style={{
+            '--card-x': `${d * 65}%`,
+            '--card-rotation': `${d * -8}deg`,
+            '--card-scale': Math.max(.68, 1 - Math.abs(d) * .13),
+            zIndex: 8 - Math.abs(d),
+            opacity: show ? 1 : 0,
+            pointerEvents: show ? 'auto' : 'none',
+          }}
+        ><img src={c.image} alt={c.name} loading={show ? 'eager' : 'lazy'} decoding="async" draggable="false" /></button>;
       })}
     </div>
-    <div className="ks-cardfan-controls"><button type="button" aria-label="Carta anterior" onClick={() => move(-1)}>←</button><span>{active + 1} de {cards.length}</span><button type="button" aria-label="Carta siguiente" onClick={() => move(1)}>→</button></div>
-    <div className="ks-cardfan-details" aria-live="polite"><strong>{cards[active].name}</strong><span>{cards[active].set}</span><a href="#catalogo">Explorar el catálogo ↗</a></div>
+    <div className="ks-cardfan-controls">
+      <button type="button" aria-label="Carta anterior" onClick={() => move(-1)}>←</button>
+      <span>{active + 1} de {cards.length}</span>
+      <button type="button" aria-label="Carta siguiente" onClick={() => move(1)}>→</button>
+      <button
+        type="button"
+        className="ks-cardfan-play"
+        aria-label={playing ? 'Pausar carrusel de cartas' : 'Reanudar carrusel de cartas'}
+        aria-pressed={!playing}
+        onClick={() => setPlaying(v => !v)}
+      >{playing ? 'Ⅱ Pausar' : '▶ Reanudar'}</button>
+    </div>
+    <div className="ks-cardfan-details" aria-live="off"><strong>{cards[active].name}</strong><span>{cards[active].set}</span><a href="#catalogo">Explorar el catálogo ↗</a></div>
   </section>;
 }

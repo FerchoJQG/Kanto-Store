@@ -612,3 +612,59 @@ a{transition:color .2s}
  .ks-cardfan-details strong{font-size:22px}
 }
 @media(prefers-reduced-motion:reduce){.ks-categories{animation:none}.ks-cardfan-card{transition:none!important}.ks-payments-list{animation:none!important}.ks-cardfan-halo{filter:none}}
+
+/* === KANTO · carruseles fluidos y círculos en tarjetas · noviembre 2026 === */
+/* Círculos estáticos y ligeros: sin blur animado ni filtros sobre toda la cuadrícula. */
+.ks-product-art{isolation:isolate;overflow:hidden}
+.ks-product-art::before,.ks-product-art::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none}
+.ks-product-art::before{width:clamp(140px,14vw,205px);aspect-ratio:1;border:2px solid #b0c9ff38;box-shadow:0 0 0 24px #9bb9ff12,0 0 0 52px #a2c3ff08}
+.ks-product-art::after{width:clamp(105px,10vw,155px);aspect-ratio:1;background:radial-gradient(circle,#94b3ff2f 0%,#6688ed12 54%,transparent 72%);border:1px solid #dce9ff30}
+.ks-product-art>a{position:relative;z-index:1}
+.ks-product-art>a>img{position:relative;z-index:1}
+[data-tema='claro'] .ks-product-art::before{border-color:#679ce94d;box-shadow:0 0 0 24px #6999e91b,0 0 0 52px #6b9eea0d}
+[data-tema='claro'] .ks-product-art::after{background:radial-gradient(circle,#8cacf13d,transparent 75%)}
+
+/* El abanico tiene un área propia para que ninguna carta se corte por los controles. */
+.ks-featured-cards{position:relative;overflow:hidden;padding-bottom:38px}
+.ks-cardfan{height:460px;max-width:1080px;overflow:visible;isolation:isolate;margin:24px auto 12px}
+.ks-cardfan::before,.ks-cardfan::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none}
+.ks-cardfan::before{width:min(385px,62%);aspect-ratio:1;border:2px solid #c1d8ff50;box-shadow:0 0 0 35px #7897ff12,0 0 0 82px #9278ff0b}
+.ks-cardfan::after{width:min(290px,50%);aspect-ratio:1;background:radial-gradient(circle,#8a76f04b,transparent 72%);border:1px solid #a5ceff3d}
+.ks-cardfan-halo{z-index:-1;width:min(540px,90%);height:360px;filter:none;background:radial-gradient(ellipse,#5361d044,transparent 70%)}
+.ks-cardfan-card{width:clamp(170px,18vw,250px);height:390px;filter:none!important;transition:transform .42s cubic-bezier(.2,.7,.2,1),opacity .3s ease;will-change:auto}
+.ks-cardfan-card.is-center{filter:none!important}
+.ks-cardfan-card:hover{filter:none!important}
+.ks-cardfan-card img{height:100%;width:100%;object-fit:contain;filter:none;pointer-events:none}
+.ks-cardfan-controls{position:relative;z-index:12;margin-top:13px;flex-wrap:wrap;gap:13px}
+.ks-cardfan-play,.ks-payments-progress .ks-payments-play{width:auto;height:auto;min-height:33px;padding:6px 11px;border:1px solid #a8bde363;background:#1f3154;color:#f5f7ff;border-radius:100px;font:800 11px var(--ks-font);cursor:pointer}
+.ks-cardfan-controls .ks-cardfan-play{width:auto;min-width:94px;height:36px;line-height:1}
+.ks-cardfan-details{position:relative;z-index:2}
+
+/* La franja cambia sola aun con el cursor encima. Solo se pausa manualmente,
+   al ocultarse la pestaña, al salir del viewport o por reducción de movimiento. */
+.ks-payments-progress{align-items:center;flex-wrap:wrap}
+.ks-payments-progress .ks-payments-play{margin-left:15px;background:#ffffff14;border-color:#c1cee346;color:#eef4ff;min-height:28px}
+.ks-payments-progress .ks-payments-play:hover,.ks-cardfan-controls .ks-cardfan-play:hover{background:#fbd633;color:#101d32}
+.ks-payments-list{animation:ks-pays-in .34s ease both}
+@media(max-width:800px){
+ .ks-cardfan{height:365px;margin-top:18px}
+ .ks-cardfan-card{width:190px;height:300px}
+ .ks-cardfan::before{width:min(290px,65%)}
+}
+@media(max-width:580px){
+ .ks-cardfan{height:290px;margin:12px auto 8px}
+ .ks-cardfan-card{width:145px;height:245px}
+ .ks-cardfan::before{width:220px;max-width:82%}
+ .ks-cardfan::after{width:170px;max-width:64%}
+ .ks-cardfan-controls{margin-top:2px;gap:8px}
+ .ks-product-art::before{width:118px;box-shadow:0 0 0 16px #9bb9ff12,0 0 0 35px #a2c3ff08}
+ .ks-product-art::after{width:98px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ks-cardfan-card,.ks-payments-list{transition:none!important;animation:none!important}
+ .ks-product-art>a>img{transition:none!important}
+}
+
+/* Suspender animaciones y filtros innecesarios mientras el usuario navega por abajo. */
+.ks-hero-offscreen .ks-hero-card-image{animation-play-state:paused}
+.ks-product-art>a>img{filter:none}
