@@ -1,0 +1,64 @@
+/* FASE 12 · seis cartas en bucle y videos externos en promociones. */
+.kanto-f12-showcase{background:radial-gradient(ellipse 53% 56% at 50% 52%,#263665 0%,#14203d 56%,transparent 88%),linear-gradient(180deg,#0e182b,#101d36 53%,#0c1528)!important}
+.kanto-f12-showcase .tcg-showcase-stage{height:515px;max-width:1220px;isolation:isolate;overflow:visible;transform-style:preserve-3d}
+.kanto-f12-showcase .kanto-f12-halo{position:absolute;inset:8% 23% 7%;border:1px solid #abb7d333;border-radius:50%;box-shadow:0 0 0 45px #6476d00b,0 0 0 94px #6476d008;pointer-events:none;z-index:0}
+.kanto-f12-showcase .tcg-showcase-card{width:282px;height:405px;transition:transform .66s cubic-bezier(.19,.9,.24,1),opacity .5s ease,filter .5s ease;will-change:auto;filter:blur(4px) brightness(.6);overflow:visible}
+.kanto-f12-showcase .tcg-showcase-card .tcg-showcase-card-inner{border-radius:14px;overflow:visible;filter:drop-shadow(0 18px 15px #0009)}
+.kanto-f12-showcase .tcg-showcase-card img{object-fit:contain;border-radius:12px;filter:drop-shadow(0 9px 10px #0009)}
+.kanto-f12-showcase .tcg-showcase-card.is-center{z-index:7;opacity:1;filter:drop-shadow(0 23px 25px #000a);transform:translate(-50%,-50%) scale(1.02)!important;pointer-events:auto}
+.kanto-f12-showcase .tcg-showcase-card.is-left-1{z-index:5;opacity:.90;filter:brightness(.90);transform:translate(calc(-50% - 215px),-50%) rotateZ(-8deg) scale(.83)!important;pointer-events:auto}
+.kanto-f12-showcase .tcg-showcase-card.is-right-1{z-index:5;opacity:.90;filter:brightness(.90);transform:translate(calc(-50% + 215px),-50%) rotateZ(8deg) scale(.83)!important;pointer-events:auto}
+.kanto-f12-showcase .tcg-showcase-card.is-left-2{z-index:3;opacity:.65;filter:brightness(.77);transform:translate(calc(-50% - 395px),-50%) rotateZ(-13deg) scale(.69)!important;pointer-events:auto}
+.kanto-f12-showcase .tcg-showcase-card.is-right-2{z-index:3;opacity:.65;filter:brightness(.77);transform:translate(calc(-50% + 395px),-50%) rotateZ(13deg) scale(.69)!important;pointer-events:auto}
+.kanto-f12-showcase .tcg-showcase-card.is-left-3,.kanto-f12-showcase .tcg-showcase-card.is-right-3{opacity:0;pointer-events:none;filter:blur(5px);transform:translate(-50%,-50%) scale(.5)!important}
+.kanto-f12-showcase .tcg-showcase-controls{position:relative;z-index:10;margin-top:-2px;gap:16px}
+.kanto-f12-showcase .tcg-showcase-controls button{background:#273b65;border-color:#7287b5;color:#fff}
+.kanto-f12-showcase .tcg-showcase-controls button:hover{background:#375b9a}
+.kanto-f12-dots{display:flex;justify-content:center;align-items:center;gap:8px;margin:1px auto 15px}
+.kanto-f12-dots button{width:9px;height:9px;min-width:9px;border:0;padding:0;border-radius:30px;background:#7789ad;opacity:.7;transition:width .3s ease,opacity .3s ease,background .3s ease;cursor:pointer}
+.kanto-f12-dots button.is-active{width:30px;background:#ffdb52;opacity:1}
+.kanto-f12-showcase .tcg-showcase-meta strong{font-size:clamp(19px,2.4vw,31px);font-weight:900}
+.kanto-f12-showcase .tcg-showcase-meta span{color:#b8c5e0}
+.kanto-f12-promos .kanto-v10-promo-stage{border-color:#819ddc7d;box-shadow:0 22px 55px #0008,0 0 32px #3a55a319}
+.kanto-f12-promos .kanto-v10-promo-image{height:390px;min-height:310px;background:radial-gradient(circle at center,#273763,#0c1224 74%)}
+.kanto-f12-poster{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:zoom-in;background:transparent;border:0;padding:22px;overflow:hidden}
+.kanto-f12-poster-glow{position:absolute;inset:-30px;pointer-events:none;background-size:cover;background-position:center;filter:blur(32px) brightness(.72);opacity:.22}
+.kanto-f12-poster img{position:relative;z-index:1;display:block;height:auto!important;width:auto!important;max-height:99%!important;max-width:min(100%,390px)!important;object-fit:contain!important;border-radius:13px;filter:drop-shadow(0 21px 23px #0009);transition:transform .35s ease}
+.kanto-f12-poster:hover img{transform:translateY(-5px) scale(1.025)}
+.kanto-f12-video-blank{display:grid;place-items:center;position:relative;z-index:1;background:linear-gradient(145deg,#293d6c,#0d1630);border:1px solid #b5c0e355;min-width:min(85%,300px);min-height:230px;border-radius:15px;color:#ffe47b;font-weight:900;letter-spacing:.18em}
+.kanto-f12-play{position:absolute;z-index:2;width:74px;height:74px;display:grid;place-items:center;left:50%;top:50%;transform:translate(-50%,-50%);border:2px solid #ffffffc9;background:#101d35cb;box-shadow:0 8px 26px #0009;border-radius:50%;font-size:30px;color:#ffe074;pointer-events:none}
+.kanto-f12-expand{position:absolute;bottom:21px;right:22px;z-index:2;display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#1a2945c9;color:#fff;font-size:21px;pointer-events:none}
+.kanto-f12-video-chip{display:inline-block;font-size:12px;font-weight:900;color:#f8e29b;border:1px solid #f8e29b66;border-radius:50px;padding:6px 12px}
+.kanto-f12-modal .kanto-v10-promo-modal{max-width:1080px;min-height:460px;background:linear-gradient(130deg,#1a2746,#0b1122)}
+.kanto-f12-modal .kanto-v10-modal-image{min-width:0;height:480px;padding:18px;z-index:1}
+.kanto-f12-iframe{display:block;position:relative;z-index:2;width:100%;height:100%;border:none;border-radius:13px;background:#030713;object-fit:contain}
+.kanto-f12-enlarged-art{position:relative;z-index:2;width:100%;height:100%;display:grid;place-items:center}
+.kanto-f12-enlarged-art img{display:block;max-height:100%;max-width:100%;object-fit:contain;border-radius:12px;filter:drop-shadow(0 12px 20px #000b)}
+.kanto-f12-admin-promos .panel{min-width:0}
+.kanto-f12-admin-promos .kanto-f12-video-hint{margin:-2px 0 14px;overflow-wrap:anywhere;color:#c4d3ed}
+.kanto-f12-admin-modal{z-index:10001!important}
+.kanto-f12-admin-modal .kanto-f12-admin-media{display:block;width:100%;height:min(56vw,480px);max-height:55dvh;border:0;border-radius:12px;object-fit:contain;margin:15px auto;background:#060b17}
+@media(max-width:950px){
+  .kanto-f12-showcase .tcg-showcase-stage{height:450px}
+  .kanto-f12-showcase .tcg-showcase-card{width:230px;height:330px}
+  .kanto-f12-showcase .tcg-showcase-card.is-left-1{transform:translate(calc(-50% - 177px),-50%) rotateZ(-7deg) scale(.8)!important}
+  .kanto-f12-showcase .tcg-showcase-card.is-right-1{transform:translate(calc(-50% + 177px),-50%) rotateZ(7deg) scale(.8)!important}
+  .kanto-f12-showcase .tcg-showcase-card.is-left-2{transform:translate(calc(-50% - 320px),-50%) rotateZ(-13deg) scale(.65)!important}
+  .kanto-f12-showcase .tcg-showcase-card.is-right-2{transform:translate(calc(-50% + 320px),-50%) rotateZ(13deg) scale(.65)!important}
+  .kanto-f12-modal .kanto-v10-promo-modal{grid-template-columns:1fr}
+  .kanto-f12-modal .kanto-v10-modal-image{height:320px}
+}
+@media(max-width:560px){
+  .kanto-f12-showcase .tcg-showcase-stage{height:330px}
+  .kanto-f12-showcase .tcg-showcase-card{width:180px;height:260px}
+  .kanto-f12-showcase .tcg-showcase-card.is-left-1{transform:translate(calc(-50% - 115px),-50%) rotateZ(-8deg) scale(.73)!important}
+  .kanto-f12-showcase .tcg-showcase-card.is-right-1{transform:translate(calc(-50% + 115px),-50%) rotateZ(8deg) scale(.73)!important}
+  .kanto-f12-showcase .tcg-showcase-card.is-left-2,.kanto-f12-showcase .tcg-showcase-card.is-right-2{opacity:0!important;pointer-events:none}
+  .kanto-f12-promos .kanto-v10-promo-image{height:290px;min-height:265px}
+  .kanto-f12-modal .kanto-v10-modal-image{height:255px}
+  .kanto-f12-modal .kanto-v10-modal-text{padding:12px 20px 30px}
+  .kanto-f12-poster{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .kanto-f12-showcase .tcg-showcase-card,.kanto-f12-poster img,.kanto-f12-dots button{transition:none!important;animation:none!important}
+}
