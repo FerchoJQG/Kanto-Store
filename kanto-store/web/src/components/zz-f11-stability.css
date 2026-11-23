@@ -1,0 +1,167 @@
+/* Fase 11: diseño estable, promoción ampliada y fotos opcionales.
+ * Todas las reglas tienen prefijo: no afectan al checkout, stock ni pagos. */
+.kanto-f11-hero .cinematic-stage {
+  height: clamp(445px, 38vw, 625px) !important;
+  min-height: 445px;
+  overflow: hidden;
+  contain: layout paint;
+}
+/* Evita la combinación de animación de translate y translate heredado
+   que descolocaba las cartas verticalmente en ciertos navegadores. */
+.kanto-f11-hero .cinematic-stage .cinematic-card,
+.kanto-f11-hero .cinematic-stage .cinematic-card-stack .cinematic-card {
+  animation: none !important;
+  translate: none !important;
+  top: 50%;
+  margin: 0;
+  bottom: auto;
+  max-height: 82%;
+  transform: translateY(-50%);
+}
+.kanto-f11-hero .cinematic-stage .cinematic-slide .cinematic-card-primary {
+  top: 50% !important;
+  right: clamp(40px, 9vw, 145px);
+  width: clamp(192px, 20vw, 294px);
+}
+.kanto-f11-hero .cinematic-stage .cinematic-card-stack {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  max-height: 72%;
+}
+.kanto-f11-hero .cinematic-card-stack .cinematic-card-behind {
+  transform: translateY(-50%) rotate(-12deg) !important;
+}
+.kanto-f11-hero .cinematic-card-stack .cinematic-card-infront {
+  transform: translateY(-50%) rotate(10deg) !important;
+}
+.kanto-f11-hero .cinematic-stage .cinematic-card img {
+  max-width: 100%;
+  max-height: 100%;
+}
+.kanto-f11-hero .cinematic-stage .cinematic-hero-copy {
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: min(55%, 720px);
+}
+.kanto-f11-hero .cinematic-stage .cinematic-hero-headline {
+  font-size: clamp(43px, 4.7vw, 76px);
+}
+.kanto-f11-hero .cinematic-scene.is-active img {
+  animation-duration: 18s;
+}
+/* Menos trabajo GPU para las cartas que no están visibles. */
+.kanto-f11-showcase .tcg-showcase-card {
+  will-change: auto;
+  transition-duration: .4s;
+}
+.kanto-f11-showcase .tcg-showcase-stage {
+  height: 470px;
+}
+.kanto-f11-showcase .tcg-showcase-card.is-center {
+  transform: translate(-50%, -50%) scale(.94) !important;
+}
+.kanto-f11-promos .kanto-v10-promo-stage {
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr);
+}
+.kanto-f11-promos .kanto-v10-promo-image {
+  min-height: 320px;
+  overflow: hidden;
+}
+.kanto-f11-promos .kanto-f11-open-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  padding: 14px;
+  cursor: zoom-in;
+}
+.kanto-f11-promos .kanto-f11-open-image .kanto-v10-promo-art,
+.kanto-f11-modal-backdrop .kanto-f11-open-image .kanto-v10-promo-art {
+  display: block;
+  width: auto !important;
+  height: auto !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  border-radius: 10px;
+}
+.kanto-f11-modal-backdrop {
+  z-index: 10000 !important;
+}
+.kanto-f11-modal-backdrop .kanto-v10-promo-modal {
+  max-height: calc(100dvh - 24px);
+}
+.kanto-f11-modal-backdrop .kanto-v10-modal-image .kanto-f11-open-image {
+  cursor: default;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  padding: 8px;
+}
+.kanto-f11-modal-backdrop .kanto-v10-modal-image .kanto-v10-promo-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.kanto-f11-fotos {
+  border: 1px solid var(--line, #41506b);
+  background: rgba(82, 102, 161, .09);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 20px 0 14px;
+}
+.kanto-f11-fotos h4 { font-size: 1.05rem; margin: 0 0 8px; }
+.kanto-f11-fotos-campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.kanto-f11-foto-campo { display: block; padding: 12px; border: 1px dashed #7588aa; border-radius: 12px; }
+.kanto-f11-foto-campo span { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 700; color: var(--ink, #f4f7ff); }
+.kanto-f11-foto-campo input { font-size: 13px; max-width: 100%; }
+.kanto-f11-fotos-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 15px 0; }
+.kanto-f11-fotos-grid figure { width: 138px; margin: 0; }
+.kanto-f11-fotos-grid img { height: 155px; width: 100%; border-radius: 8px; object-fit: cover; }
+.kanto-f11-fotos-grid figcaption { font-size: 12px; color: var(--muted, #aab4c7); }
+.kanto-f11-promo-admin .panel { min-width: 0; }
+.kanto-f11-admin-backdrop {
+  position: fixed; inset: 0; z-index: 10000; background: rgba(2, 5, 14, .90);
+  display: grid; place-items: center; padding: 18px; overflow: auto;
+}
+.kanto-f11-admin-preview {
+  background: #172137; border: 1px solid #6e85af; border-radius: 17px; color: #fff;
+  width: min(760px, 100%); max-height: 94dvh; overflow: auto; padding: 18px; text-align: center;
+}
+.kanto-f11-admin-preview > img,
+.kanto-f11-admin-preview > video { display: block; object-fit: contain; max-height: 62dvh; max-width: 100%; margin: 12px auto; }
+@media (max-width: 900px) {
+  .kanto-f11-hero .cinematic-stage { height: 530px !important; }
+  .kanto-f11-hero .cinematic-stage .cinematic-hero-headline { font-size: clamp(34px, 5vw, 48px); }
+  .kanto-f11-hero .cinematic-stage .cinematic-slide .cinematic-card-primary { width: clamp(160px, 25vw, 235px); right: 4vw; }
+  .kanto-f11-showcase .tcg-showcase-stage { height: 410px; }
+  .kanto-f11-promos .kanto-v10-promo-stage { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .kanto-f11-hero .cinematic-stage { height: 620px !important; }
+  .kanto-f11-hero .cinematic-stage .cinematic-hero-copy {
+    left: 20px; right: 20px; top: 84px; width: auto; max-width: none;
+    transform: none;
+  }
+  .kanto-f11-hero .cinematic-stage .cinematic-slide .cinematic-card-primary {
+    top: 66% !important; right: 7vw; width: clamp(145px, 41vw, 200px);
+  }
+  .kanto-f11-hero .cinematic-stage .cinematic-card-stack { top: 68% !important; right: 6vw; }
+  .kanto-f11-showcase .tcg-showcase-stage { height: 350px; }
+  .kanto-f11-showcase .tcg-showcase-card { width: 194px; height: 278px; }
+  .kanto-f11-promos .kanto-v10-promo-image { height: 260px; min-height: 260px; }
+  .kanto-f11-fotos-campos { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kanto-f11-hero .cinematic-scene.is-active img,
+  .kanto-f11-showcase .tcg-showcase-card,
+  .kanto-f11-promos .kanto-v10-promo-art { animation: none !important; transition: none !important; }
+}

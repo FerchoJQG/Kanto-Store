@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './zz-f10-card-showcase.css';
 import './zz-f10-fixes.css';
+import './zz-f11-stability.css';
 
 const cards = [
   {name:'Mega-Darkrai ex',set:'Oscuridad Absoluta · Carta destacada',src:'/assets/carrusel/oa-darkrai-card.png'},
@@ -33,7 +34,7 @@ export default function FeaturedCards() {
   },[visible,playing,reduce,docVisible,focus]);
   const go = delta=>setIndex(i=>(i+delta+cards.length)%cards.length);
   function distance(i){let d=(i-index+cards.length)%cards.length;if(d>cards.length/2)d-=cards.length;return d;}
-  return <section ref={el} id="presentaciones" className="tcg-showcase" aria-labelledby="tcg-showcase-title"><div className="tcg-showcase-wrap">
+  return <section ref={el} id="presentaciones" className="tcg-showcase kanto-f11-showcase" aria-labelledby="tcg-showcase-title"><div className="tcg-showcase-wrap">
     <p className="tcg-showcase-kicker">✦ SELECCIÓN KANTO</p>
     <h2 id="tcg-showcase-title">CARTAS QUE <em>ROBAN MIRADAS</em></h2>
     <p className="tcg-showcase-lead">Desde megavoluciones impactantes hasta tus Pokémon favoritos — descubre una nueva carta en cada movimiento.</p>

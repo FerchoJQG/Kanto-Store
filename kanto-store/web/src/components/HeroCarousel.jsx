@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './zz-f10-cinematic.css';
 import './zz-f10-fixes.css';
+import './zz-f11-stability.css';
 
 // Reproducción React de la portada cinematográfica del ZIP suministrado.
 // La compra, productos y rutas continúan perteneciendo al React/MySQL de Kanto.
@@ -59,7 +60,7 @@ export default function HeroCarousel() {
     ['--pan-x','--pan-y','--card-rotate-x','--card-rotate-y','--card-shift-x','--card-shift-y'].forEach(prop => el.current?.style.removeProperty(prop));
   };
   const s = SLIDES[index];
-  return <section ref={el} className={`cinematic-hero kanto-f10-hero ${paused || reduce ? 'is-motion-paused' : ''}`} data-theme={s.theme} aria-label="Portada cinematográfica Kanto TCG">
+  return <section ref={el} className={`cinematic-hero kanto-f10-hero kanto-f11-hero ${paused || reduce ? 'is-motion-paused' : ''}`} data-theme={s.theme} aria-label="Portada cinematográfica Kanto TCG">
     <div className="cinematic-stage" role="region" aria-roledescription="carrusel" aria-label="Colecciones destacadas" tabIndex={0}
       onPointerMove={parallax} onPointerLeave={reset}
       onKeyDown={e => {if(e.key === 'ArrowLeft'){e.preventDefault();move(-1);} if(e.key === 'ArrowRight'){e.preventDefault();move(1);}}}
