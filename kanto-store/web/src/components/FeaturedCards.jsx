@@ -1,120 +1,50 @@
 import { useEffect, useRef, useState } from 'react';
+import './zz-f10-card-showcase.css';
+import './zz-f10-fixes.css';
 
-// Imágenes del catálogo publicado; ninguna carta depende de una imagen de ejemplo.
 const cards = [
-  { name: 'Mega-Golisopod ex', set: 'Dominio Delta', image: '/assets/carrusel/mega-golisopod-ex-limpia.png' },
-  { name: 'Mega-Chandelure ex', set: 'Oscuridad Absoluta', image: '/assets/carrusel/oa-chandelure-card.png' },
-  { name: 'Mega-Darkrai ex', set: 'Oscuridad Absoluta', image: '/assets/carrusel/oa-darkrai-card.png' },
-  { name: 'Charizard ex', set: 'Colección destacada', image: '/assets/carrusel/charizard-ex-limpia.png' },
-  { name: 'Raikou ex', set: 'Dominio Delta', image: '/assets/cartas-es/me06-121.webp' },
-  { name: 'Mega-Malamar ex', set: 'Dominio Delta', image: '/assets/cartas-es/me06-123.webp' },
+  {name:'Mega-Darkrai ex',set:'Oscuridad Absoluta · Carta destacada',src:'/assets/carrusel/oa-darkrai-card.png'},
+  {name:'Mega-Chandelure ex',set:'Oscuridad Absoluta · Carta destacada',src:'/assets/carrusel/oa-chandelure-card.png'},
+  {name:'Mega-Golisopod ex',set:'Dominio Delta · Carta destacada',src:'/assets/carrusel/mega-golisopod-ex-limpia.png'},
+  {name:'Charizard ex',set:'Llamas Obsidianas · Carta destacada',src:'/assets/carrusel/charizard-ex-limpia.png'}
 ];
-
-const NEXT_MS = 4800;
-
 export default function FeaturedCards() {
-  const [active, setActive] = useState(2);
-  const [playing, setPlaying] = useState(true);
-  const [visible, setVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
-  const [inView, setInView] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const sectionRef = useRef(null);
-  const touchStart = useRef(null);
-
-  // No usar intervalos ni transformar cartas cuando el bloque está fuera de pantalla.
-  useEffect(() => {
-    const onVisibility = () => setVisible(!document.hidden);
-    document.addEventListener('visibilitychange', onVisibility);
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onMotion = () => setReduceMotion(media.matches);
-    onMotion();
-    media.addEventListener?.('change', onMotion);
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      media.removeEventListener?.('change', onMotion);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!('IntersectionObserver' in window)) { setInView(true); return; }
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.05 });
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!playing || !visible || !inView || reduceMotion) return;
-    const timer = window.setInterval(() => setActive(i => (i + 1) % cards.length), NEXT_MS);
-    return () => window.clearInterval(timer);
-  }, [playing, visible, inView, reduceMotion]);
-
-  const move = delta => setActive(i => (i + delta + cards.length) % cards.length);
-  const offset = i => {
-    let d = (i - active + cards.length) % cards.length;
-    if (d > cards.length / 2) d -= cards.length;
-    return d;
-  };
-
-  return <section ref={sectionRef} className="ks-featured-cards ks-wide" aria-label="Cartas Pokémon destacadas">
-    <div className="ks-featured-heading">
-      <span>✦ SELECCIÓN KANTO</span>
-      <h2>CARTAS QUE <em>ROBAN MIRADAS.</em></h2>
-      <p>Las cartas avanzan automáticamente. También puedes usar las flechas o seleccionar una carta.</p>
+  const [index,setIndex] = useState(0);
+  const [playing,setPlaying] = useState(true);
+  const [visible,setVisible] = useState(false);
+  const [focus,setFocus] = useState(false);
+  const [reduce,setReduce] = useState(false);
+  const [docVisible,setDocVisible] = useState(true);
+  const el = useRef(null);
+  const touchX = useRef(null);
+  useEffect(()=>{
+    const media=window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update=()=>setReduce(media.matches);
+    const visibility=()=>setDocVisible(!document.hidden);
+    update();visibility();media.addEventListener?.('change',update);document.addEventListener('visibilitychange',visibility);
+    const obs='IntersectionObserver' in window ? new IntersectionObserver(([entry])=>setVisible(entry.isIntersecting),{threshold:.05}):null;
+    if(obs&&el.current)obs.observe(el.current);if(!obs)setVisible(true);
+    return ()=>{media.removeEventListener?.('change',update);document.removeEventListener('visibilitychange',visibility);obs?.disconnect();};
+  },[]);
+  useEffect(()=>{
+    if(!visible||!playing||reduce||!docVisible||focus)return;
+    const timer=setInterval(()=>setIndex(i=>(i+1)%cards.length),5200);
+    return ()=>clearInterval(timer);
+  },[visible,playing,reduce,docVisible,focus]);
+  const go = delta=>setIndex(i=>(i+delta+cards.length)%cards.length);
+  function distance(i){let d=(i-index+cards.length)%cards.length;if(d>cards.length/2)d-=cards.length;return d;}
+  return <section ref={el} id="presentaciones" className="tcg-showcase" aria-labelledby="tcg-showcase-title"><div className="tcg-showcase-wrap">
+    <p className="tcg-showcase-kicker">✦ SELECCIÓN KANTO</p>
+    <h2 id="tcg-showcase-title">CARTAS QUE <em>ROBAN MIRADAS</em></h2>
+    <p className="tcg-showcase-lead">Desde megavoluciones impactantes hasta tus Pokémon favoritos — descubre una nueva carta en cada movimiento.</p>
+    <div className="tcg-showcase-stage" role="region" aria-roledescription="carrusel" aria-label="Galería 3D de cartas" tabIndex={0}
+      onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();go(-1);}if(e.key==='ArrowRight'){e.preventDefault();go(1);}}}
+      onFocus={()=>setFocus(true)} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocus(false);}}
+      onTouchStart={e=>{touchX.current=e.touches[0]?.clientX??null;}} onTouchEnd={e=>{if(touchX.current==null)return;const dx=e.changedTouches[0].clientX-touchX.current;touchX.current=null;if(Math.abs(dx)>45)go(dx<0?1:-1);}}>
+      {cards.map((c,i)=>{const d=distance(i);const cls=d===0?'is-center':d<0?`is-left-${-d}`:`is-right-${d}`;return <button key={c.src} type="button" className={`tcg-showcase-card ${cls}`} aria-hidden={Math.abs(d)>2} tabIndex={Math.abs(d)>2?-1:0} aria-label={`Mostrar ${c.name}`} aria-current={d===0?'true':undefined} onClick={()=>setIndex(i)}><span className="tcg-showcase-card-inner"><img src={c.src} alt={c.name} loading="lazy" decoding="async" draggable="false" /></span></button>;})}
     </div>
-    <div
-      className="ks-cardfan"
-      role="region"
-      aria-roledescription="carrusel"
-      aria-label="Carrusel de seis cartas Pokémon"
-      tabIndex="0"
-      onKeyDown={e => {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); move(-1); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); move(1); }
-      }}
-      onTouchStart={e => { touchStart.current = e.touches[0]?.clientX ?? null; }}
-      onTouchEnd={e => {
-        if (touchStart.current === null) return;
-        const dx = e.changedTouches[0].clientX - touchStart.current;
-        if (Math.abs(dx) > 35) move(dx < 0 ? 1 : -1);
-        touchStart.current = null;
-      }}
-    >
-      <div className="ks-cardfan-halo" aria-hidden="true" />
-      {cards.map((c, i) => {
-        const d = offset(i);
-        const show = Math.abs(d) <= 2;
-        return <button
-          key={c.image}
-          type="button"
-          className={`ks-cardfan-card ${d === 0 ? 'is-center' : ''}`}
-          aria-hidden={!show}
-          tabIndex={show ? 0 : -1}
-          aria-label={`Mostrar ${c.name}`}
-          aria-current={d === 0 ? 'true' : undefined}
-          onClick={() => setActive(i)}
-          style={{
-            '--card-x': `${d * 65}%`,
-            '--card-rotation': `${d * -8}deg`,
-            '--card-scale': Math.max(.68, 1 - Math.abs(d) * .13),
-            zIndex: 8 - Math.abs(d),
-            opacity: show ? 1 : 0,
-            pointerEvents: show ? 'auto' : 'none',
-          }}
-        ><img src={c.image} alt={c.name} loading={show ? 'eager' : 'lazy'} decoding="async" draggable="false" /></button>;
-      })}
-    </div>
-    <div className="ks-cardfan-controls">
-      <button type="button" aria-label="Carta anterior" onClick={() => move(-1)}>←</button>
-      <span>{active + 1} de {cards.length}</span>
-      <button type="button" aria-label="Carta siguiente" onClick={() => move(1)}>→</button>
-      <button
-        type="button"
-        className="ks-cardfan-play"
-        aria-label={playing ? 'Pausar carrusel de cartas' : 'Reanudar carrusel de cartas'}
-        aria-pressed={!playing}
-        onClick={() => setPlaying(v => !v)}
-      >{playing ? 'Ⅱ Pausar' : '▶ Reanudar'}</button>
-    </div>
-    <div className="ks-cardfan-details" aria-live="off"><strong>{cards[active].name}</strong><span>{cards[active].set}</span><a href="#catalogo">Explorar el catálogo ↗</a></div>
-  </section>;
+    <div className="tcg-showcase-controls"><button type="button" aria-label="Carta anterior" onClick={()=>go(-1)}>❮</button><span className="tcg-showcase-counter">{index+1} de {cards.length}</span><button type="button" aria-label="Carta siguiente" onClick={()=>go(1)}>❯</button><button type="button" className="kanto-f10-gallery-play" onClick={()=>setPlaying(v=>!v)} aria-pressed={!playing}>{playing?'Ⅱ Pausar':'▶ Reanudar'}</button></div>
+    <div className="tcg-showcase-meta" aria-live="off"><strong>{cards[index].name}</strong><span>{cards[index].set}</span></div>
+    <div className="tcg-showcase-footer"><a className="tcg-showcase-cta" href="#catalogo">EXPLORAR CARTAS ↗</a></div>
+  </div></section>;
 }

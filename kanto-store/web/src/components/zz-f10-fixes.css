@@ -1,0 +1,63 @@
+/* KANTO FASE 10 · Estilos del ZIP de referencia integrados en React/MySQL.
+   Prefijos específicos: no se alteran checkout, roles, inventario ni pagos. */
+:root{--cond:'Barlow Condensed',Impact,'Arial Narrow',sans-serif}
+.kanto-f10-hero .cinematic-hero-copy{pointer-events:none}
+.kanto-f10-hero .cinematic-card img{max-width:100%}
+.kanto-f10-hero .cinematic-collection-logo{max-width:min(680px,95vw);object-fit:contain}
+.kanto-f10-hero .cinematic-titleband{padding-top:24px;padding-bottom:28px}
+.kanto-f10-hero .cinematic-motion,.kanto-f10-hero .cinematic-controls button{cursor:pointer}
+.kanto-f10-hero a.cinematic-main-cta{text-decoration:none;color:#141d2c}
+.kanto-f10-hero .cinematic-hero-headline{font-family:var(--cond)}
+.kanto-f10-hero .cinematic-main-cta:hover{transform:translateY(-3px)}
+.kanto-f10-payment .payment-marquee-track{animation-name:kanto-payment-scroll}
+.kanto-f10-payment .payment-marquee:hover .payment-marquee-track,.kanto-f10-payment .payment-marquee:focus-within .payment-marquee-track{animation-play-state:running}
+.kanto-f10-payment.is-paused .payment-marquee-track{animation-play-state:paused!important}
+.kanto-f10-payment .payment-showcase-header{max-width:1300px}
+.kanto-f10-marquee-toggle{padding:6px 12px;background:#192338;border:1px solid #50617b;border-radius:8px;font-size:12px;letter-spacing:.02em;color:#fff}
+.kanto-f10-marquee-toggle:hover{background:#32486d}
+.kanto-f10-payment .payment-showcase-note{margin-top:10px}
+.tcg-showcase .kanto-f10-gallery-play{width:auto;padding:9px 15px;border-radius:24px;font-size:13px}
+.tcg-showcase .tcg-showcase-card{touch-action:pan-y}
+.tcg-showcase .tcg-showcase-meta{color:#fff}
+.categories-section .adventure-wrap{max-width:1360px;margin:0 auto;padding:0 28px}
+.categories-section .category-card .adventure-card-art img{height:100%;width:100%;object-fit:contain}
+.categories-section .category-card .adventure-art-single img{border-radius:8px}
+.categories-section .category-card{will-change:auto}
+.categories-section .category-card:focus-visible{outline:2px solid #ffda59;outline-offset:4px}
+.categories-section .adventure-card-copy strong span{display:contents}
+@media(max-width:640px){.categories-section .adventure-wrap{padding:0 15px}.tcg-showcase .kanto-f10-gallery-play{font-size:11px;padding:6px 9px}}
+
+/* PROMOCIONES · Nunca llenar 100% del ancho con la imagen en modo cover. */
+.kanto-v10-promos{color:#f6f8ff;background:radial-gradient(ellipse at 80% 10%,#26376477,transparent 60%),linear-gradient(165deg,#090e1b,#141e36 50%,#090e1b);padding:74px clamp(16px,3vw,44px) 62px;overflow:hidden;border-top:1px solid #46639b55;border-bottom:1px solid #31456c55;position:relative;isolation:isolate}
+.kanto-v10-promos::before{content:'';position:absolute;width:620px;height:620px;right:-170px;bottom:-290px;background:radial-gradient(circle,#3d568862,transparent 70%);z-index:-1;pointer-events:none}
+.kanto-v10-promo-head{max-width:1200px;margin:0 auto 22px}.kanto-v10-promo-head>span{font:800 13px 'DM Sans',sans-serif;letter-spacing:.2em;color:#ffdc61}
+.kanto-v10-promo-head h2{font:900 clamp(37px,5vw,70px)/1 var(--cond);margin:10px 0;color:#fff;letter-spacing:.01em}.kanto-v10-promo-head h2 em{font-style:normal;color:#ffdf45}
+.kanto-v10-promo-head p{max-width:760px;color:#b4c2da;font-size:15px;margin:0;line-height:1.6}
+.kanto-v10-promo-stage{max-width:1200px;margin:auto;min-height:355px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);background:linear-gradient(110deg,#14233e,#10182a);border:1px solid #7e94be52;border-radius:23px;box-shadow:0 18px 50px #0007;overflow:hidden;position:relative;isolation:isolate;touch-action:pan-y}
+.kanto-v10-promo-image{height:365px;min-width:0;display:flex;align-items:center;justify-content:center;position:relative;isolation:isolate;overflow:hidden;background:#090e1b}
+.kanto-v10-promo-image::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;border:1px solid #ffffff36;box-shadow:0 0 0 28px #ffffff08,0 0 0 62px #ffffff05;pointer-events:none}
+.kanto-v10-promo-glow{position:absolute;inset:-20px;background-size:cover;background-position:center;opacity:.2;filter:blur(25px) brightness(.9);z-index:-1;pointer-events:none}
+.kanto-v10-promo-art{position:relative;width:auto!important;max-width:94%;max-height:90%;height:auto!important;object-fit:contain!important;border-radius:10px;filter:drop-shadow(0 17px 18px #0009);animation:kanto-v10-float 6.2s ease-in-out infinite alternate}
+.kanto-v10-promo-video{position:relative;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;background:#070b15}
+@keyframes kanto-v10-float{0%{transform:translate3d(0,6px,0) rotate(-1.8deg)}100%{transform:translate3d(0,-8px,0) rotate(1.8deg)}}
+.kanto-v10-promo-info{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:38px 35px;gap:17px;background:linear-gradient(108deg,transparent,#17233b44)}
+.kanto-v10-promo-info small{font:800 12px 'DM Sans',sans-serif;letter-spacing:.12em;color:#ffdf72}
+.kanto-v10-promo-info h3{font:900 clamp(30px,3.7vw,52px)/1.08 var(--cond);margin:0;overflow-wrap:anywhere;max-width:100%}
+.kanto-v10-promo-info p{font-size:15px;line-height:1.6;color:#b8c4dc;margin:0;max-width:440px}
+.kanto-v10-promo-actions{display:flex;gap:11px;flex-wrap:wrap}.kanto-v10-promo-actions button,.kanto-v10-promo-actions a{border:1px solid #f5d65f;background:#ffd632;color:#14203a;padding:12px 16px;font-weight:850;font-size:12px;letter-spacing:.03em;border-radius:9px;text-decoration:none;cursor:pointer}.kanto-v10-promo-actions a{background:#263653;border-color:#768aab;color:#f7faff}
+.kanto-v10-promo-actions button:hover,.kanto-v10-promo-actions a:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.kanto-v10-promo-control{margin:23px auto 0;display:flex;gap:14px;align-items:center;justify-content:center;color:#e0e5f8}
+.kanto-v10-promo-control button{border:1px solid #6c7ca3;color:#fff;background:#1a2743;min-width:43px;height:41px;padding:8px 13px;border-radius:28px;cursor:pointer;font-weight:800}.kanto-v10-promo-control span{font-weight:800;font-variant-numeric:tabular-nums}.kanto-v10-promo-control button:hover{background:#315080}
+.kanto-v10-modal-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:14px;background:#030714d9;backdrop-filter:blur(7px);overflow:auto}
+.kanto-v10-promo-modal{position:relative;display:grid;grid-template-columns:1fr 1fr;max-width:930px;width:100%;max-height:calc(100vh - 28px);background:radial-gradient(ellipse at 70% 50%,#2f355c,#0c1426 75%);border:1px solid #7381a87c;border-radius:21px;box-shadow:0 28px 100px #000a;overflow:auto;color:#fff}
+.kanto-v10-modal-image{min-width:0;position:relative;display:flex;align-items:center;justify-content:center;height:470px;padding:28px;overflow:hidden;isolation:isolate}
+.kanto-v10-modal-ring{position:absolute;width:290px;height:290px;border:1px solid #ffffff41;border-radius:50%;box-shadow:0 0 0 32px #ffffff08,0 0 0 68px #ffffff07;pointer-events:none}
+.kanto-v10-modal-image .kanto-v10-promo-art{max-height:93%;max-width:92%;z-index:1}
+.kanto-v10-modal-text{padding:72px 35px 35px 12px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:16px}
+.kanto-v10-modal-text small{color:#ffe07b;letter-spacing:.13em;font-weight:900;font-size:11px}
+.kanto-v10-modal-text h2{font:900 clamp(35px,4vw,56px)/1.02 var(--cond);margin:0}.kanto-v10-modal-text h2 em{color:#ffda37;font-style:normal}.kanto-v10-modal-text h3{font-size:21px;margin:0;overflow-wrap:anywhere}.kanto-v10-modal-text p{font-size:15px;line-height:1.6;color:#c0cbdf;margin:0}
+.kanto-v10-modal-buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.kanto-v10-modal-buttons button,.kanto-v10-modal-buttons a{padding:10px 13px;background:#202e4a;color:#fff;border-radius:10px;border:1px solid #69789a;font-weight:850;font-size:13px;text-decoration:none}.kanto-v10-modal-buttons a{color:#1c2233;background:#ffd632;border-color:#ffd632}
+.kanto-v10-close{position:absolute;right:14px;top:14px;z-index:4;width:40px;height:40px;border-radius:50%;background:#1a2740;color:white;border:1px solid #95a7c0;font-size:24px;padding:0}
+@media(max-width:850px){.kanto-v10-promo-stage{grid-template-columns:1fr}.kanto-v10-promo-image{height:320px}.kanto-v10-promo-info{padding:22px 25px 28px;gap:10px}.kanto-v10-modal-text{padding:65px 25px 25px 8px}}
+@media(max-width:620px){.kanto-v10-promos{padding:55px 15px 46px}.kanto-v10-promo-stage{border-radius:17px}.kanto-v10-promo-image{height:280px}.kanto-v10-promo-info h3{font-size:38px}.kanto-v10-promo-modal{grid-template-columns:1fr}.kanto-v10-modal-image{height:290px;padding:22px}.kanto-v10-modal-text{padding:10px 22px 25px}.kanto-v10-modal-text h2{font-size:39px}.kanto-v10-promo-control{gap:8px}}
+@media(prefers-reduced-motion:reduce){.kanto-v10-promo-art{animation:none!important}.kanto-v10-promo-stage,.kanto-v10-promos button{transition:none!important}}

@@ -1,0 +1,140 @@
+/* Kanto TCG Store — carrusel visual de marcas reales. No activa pasarelas de pago. */
+.payment-showcase {
+  background: #08090d;
+  color: #fff;
+  border-top: 1px solid #282a32;
+  border-bottom: 1px solid #23252d;
+  padding: 20px 0 16px;
+  overflow: hidden;
+  isolation: isolate;
+}
+.payment-showcase * { box-sizing: border-box; }
+.payment-showcase-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 auto;
+  width: calc(100% - 50px);
+}
+.payment-showcase-header h2 {
+  font: 800 12px/1.35 'DM Sans', Arial, sans-serif;
+  letter-spacing: 1.5px;
+  margin: 0;
+  color: #f6f7fa;
+}
+.payment-showcase-caption {
+  color: #4187ff;
+  font: 700 10px/1.4 'DM Sans', Arial, sans-serif;
+  letter-spacing: 1.15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.payment-showcase-caption svg { width: 14px; height: 14px; flex: none; }
+.payment-marquee {
+  overflow: hidden;
+  width: 100%;
+  margin: 14px 0 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+}
+.payment-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: kanto-payment-scroll 42s linear infinite;
+}
+.payment-marquee-set {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: clamp(22px, 3.8vw, 56px);
+  padding-right: clamp(22px, 3.8vw, 56px);
+}
+.payment-marquee-item {
+  min-width: 90px;
+  height: 62px;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.payment-brand-logo {
+  display: block;
+  object-fit: contain;
+  width: 112px;
+  height: 48px;
+  max-width: none;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.3));
+}
+.payment-marquee-item[data-brand='tether'] .payment-brand-logo,
+.payment-marquee-item[data-brand='bitcoin'] .payment-brand-logo,
+.payment-marquee-item[data-brand='ethereum'] .payment-brand-logo { width: 54px; height: 54px; }
+.payment-marquee-item[data-brand='paypal'] .payment-brand-logo { width: 145px; height: 44px; }
+.payment-marquee-item[data-brand='visa'] .payment-brand-logo { width: 103px; height: 40px; }
+.payment-marquee-item[data-brand='mastercard'] {
+  background: #f9fafb;
+  border-radius: 10px;
+  height: 58px;
+  min-width: 102px;
+  padding: 4px 10px;
+}
+.payment-marquee-item[data-brand='mastercard'] .payment-brand-logo { width: 85px; height: 49px; }
+.payment-marquee-item[data-brand='applepay'] .payment-brand-logo { width: 100px; height: 56px; }
+.payment-marquee-item[data-brand='qr'] .payment-brand-logo { width: 51px; height: 51px; border-radius: 4px; }
+.payment-marquee-item[data-brand='mercadopago'] .payment-brand-logo { width: 148px; height: 46px; }
+.payment-marquee-item[data-brand='bolivia'] .payment-brand-logo,
+.payment-marquee-item[data-brand='argentina'] .payment-brand-logo { width: 73px; height: 49px; }
+.payment-brand-fallback {
+  font: 800 13px/1.3 'DM Sans', Arial, sans-serif;
+  color: #cbd5e1;
+  max-width: 150px;
+  white-space: normal;
+  text-align: center;
+}
+.payment-brand-logo[hidden], .payment-brand-fallback[hidden] { display: none; }
+.payment-showcase-note {
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  color: #939bad;
+  text-align: center;
+  font: 500 10px/1.45 'DM Sans', Arial, sans-serif;
+}
+@keyframes kanto-payment-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.payment-marquee:hover .payment-marquee-track,
+.payment-marquee:focus-within .payment-marquee-track { animation-play-state: paused; }
+@media (max-width: 650px) {
+  .payment-showcase { padding: 18px 0 15px; }
+  .payment-showcase-header { width: calc(100% - 30px); gap: 8px; }
+  .payment-showcase-header h2 { font-size: 10px; letter-spacing: 1px; }
+  .payment-showcase-caption { font-size: 8px; letter-spacing: .55px; }
+  .payment-showcase-caption svg { width: 11px; height: 11px; }
+  .payment-marquee-track { animation-duration: 32s; }
+  .payment-marquee-set { gap: 24px; padding-right: 24px; }
+  .payment-marquee-item { min-width: 74px; height: 50px; }
+  .payment-brand-logo { width: 98px; height: 40px; }
+  .payment-marquee-item[data-brand='tether'] .payment-brand-logo,
+  .payment-marquee-item[data-brand='bitcoin'] .payment-brand-logo,
+  .payment-marquee-item[data-brand='ethereum'] .payment-brand-logo { width: 43px; height: 43px; }
+  .payment-marquee-item[data-brand='paypal'] .payment-brand-logo { width: 117px; height: 36px; }
+  .payment-marquee-item[data-brand='visa'] .payment-brand-logo { width: 87px; height: 33px; }
+  .payment-marquee-item[data-brand='mastercard'] { min-width: 86px; height: 49px; padding: 3px 8px; }
+  .payment-marquee-item[data-brand='mastercard'] .payment-brand-logo { width: 71px; height: 41px; }
+  .payment-marquee-item[data-brand='applepay'] .payment-brand-logo { width: 81px; height: 46px; }
+  .payment-marquee-item[data-brand='qr'] .payment-brand-logo { width: 43px; height: 43px; }
+  .payment-marquee-item[data-brand='mercadopago'] .payment-brand-logo { width: 118px; height: 40px; }
+  .payment-marquee-item[data-brand='bolivia'] .payment-brand-logo,
+  .payment-marquee-item[data-brand='argentina'] .payment-brand-logo { width: 59px; height: 40px; }
+  .payment-showcase-note { width: calc(100% - 30px); font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .payment-marquee-track { animation: none; will-change: auto; }
+  .payment-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; scrollbar-width: thin; }
+}

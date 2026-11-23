@@ -1,0 +1,13 @@
+# Dependencias / builds locales
+**/node_modules/
+kanto-store/web/dist/
+# Secretos; no se suben a GitHub
+**/.env
+**/.env.*
+!**/.env.example
+# Datos privados, temporales y backups
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+**/.DS_Store
+*.log
