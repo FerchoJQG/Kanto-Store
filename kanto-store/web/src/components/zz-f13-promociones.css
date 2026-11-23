@@ -1,0 +1,37 @@
+/* Fase 13: novedades independientes, afiche personalizado y video opcional. */
+.kanto-f13-admin{max-width:1120px;min-width:0}
+.kanto-f13-admin h1{font-size:clamp(1.6rem,2.6vw,2.6rem)}
+.kanto-f13-editor{border-radius:20px!important;box-shadow:0 16px 45px #0106132b;padding:clamp(16px,2.1vw,26px)!important;overflow:hidden}
+.kanto-f13-editor strong{color:var(--ink)}
+.kanto-f13-type{display:flex;gap:10px;margin:17px 0 12px;flex-wrap:wrap}
+.kanto-f13-type button{flex:1;min-width:210px;background:transparent;border:1px solid #7086ba7a;color:var(--ink);border-radius:12px;padding:14px 16px;font-weight:800;text-align:center;transition:background .2s,border .2s}
+.kanto-f13-type button.is-selected{background:linear-gradient(130deg,#274783,#396cba);color:#fff;border-color:#84a9f9}
+.kanto-f13-hint{padding:10px 12px;border-radius:9px;background:#1b315349;margin:12px 0 20px}
+.kanto-f13-hint a{font-weight:800;text-decoration:underline}
+.kanto-f13-association{padding:16px;background:#1c31583d;border:1px solid #6e8bb044;border-radius:12px;margin:12px 0}
+.kanto-f13-poster-editor{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr);gap:22px;margin:20px 0;padding:18px;border-radius:16px;background:linear-gradient(135deg,#1a2a4a44,#304d8540);border:1px solid #667ba64a}
+.kanto-f13-poster-preview{min-height:280px;aspect-ratio:4 / 5;max-height:340px;display:grid;place-items:center;background:radial-gradient(circle at 55% 35%,#36569b,#101a30 70%);border-radius:13px;border:1px solid #7a95ca80;overflow:hidden;color:#d2ddfa;text-align:center;padding:10px;box-shadow:0 18px 32px #0005}
+.kanto-f13-poster-preview img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:8px}
+.kanto-f13-poster-options{display:flex;flex-direction:column;gap:10px;min-width:0}
+.kanto-f13-poster-options>strong{font-size:1.1rem}
+.kanto-f13-poster-options p{margin:0}
+.kanto-f13-file-label{display:inline-flex;justify-content:center;align-items:center;cursor:pointer;border-radius:10px;background:linear-gradient(90deg,#f4c933,#ffc952);color:#121c31;font-weight:900;padding:12px 14px;text-align:center;margin:0}
+.kanto-f13-file-label input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.kanto-f13-file-label:focus-within{outline:3px solid #87b6ff}
+.kanto-f13-video-hint{margin-top:-2px;color:#c9d7f4}
+.kanto-f13-check{display:flex;align-items:center;gap:9px;font-size:1rem;font-weight:700;color:var(--ink)}
+.kanto-f13-check input{width:auto;accent-color:#f6c743}
+.kanto-f13-video-ok,.kanto-f13-product-tag{display:inline-flex;align-items:center;color:#ffe596;font-weight:800;padding:8px 12px;border-radius:20px;background:#aa8e2124;border:1px solid #ffdc7955;font-size:.85rem}
+.kanto-f13-footer{position:sticky;bottom:0;padding:18px;background:linear-gradient(0deg,var(--bg) 80%,transparent);z-index:2}
+.kanto-f13-preview-modal{max-width:800px!important}
+.kanto-f13-preview-image{height:clamp(200px,43vw,490px);display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle,#34487c,#0b1426 75%);border-radius:12px;margin:14px 0}
+.kanto-f13-preview-image img{max-height:100%;max-width:100%;object-fit:contain}
+.kanto-f13-promo-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.kanto-f13-promo-actions>*{white-space:normal;min-height:45px}
+.kanto-f13-promo-actions button.kanto-f13-video-button{background:#facd48!important;color:#111a2e!important;border-color:#ffd65c!important}
+.kanto-f13-modal-tabs{display:flex;gap:9px;margin:16px 0;flex-wrap:wrap}
+.kanto-f13-modal-tabs button{background:#24385d;color:#e8f0ff;border:1px solid #61799e;border-radius:9px;padding:9px 13px;font-weight:800}
+.kanto-f13-modal-tabs button.is-selected{background:#f8d447;color:#15203b;border-color:#ffe989}
+.kanto-f13-sin-afiche{padding:30px;color:#ffd65c;font-weight:900;text-align:center;font-size:1.5rem}
+@media(max-width:670px){.kanto-f13-poster-editor{grid-template-columns:1fr;gap:14px;padding:12px}.kanto-f13-poster-preview{width:min(100%,300px);margin:auto;min-height:230px}.kanto-f13-promo-actions>*{flex:1}.kanto-f13-type button{min-width:100%}}
+@media(prefers-reduced-motion:reduce){.kanto-f13-type button{transition:none}}
